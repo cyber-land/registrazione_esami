@@ -1,0 +1,7 @@
+{
+    "require": {
+        "slim/psr7": "^1.5",
+        "slim/slim": "^4.9",
+        "league/plates": "^3.4"
+    }
+}
