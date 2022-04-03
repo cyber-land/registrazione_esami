@@ -1,10 +1,13 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Ctx } from './context.jsx'
 
 const Login = (params) => {
-  const { server_addr } = useContext(Ctx)
+  const { server_addr, token, setToken, sendErrorMessage } = useContext(Ctx)
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const navigate = useNavigate()
+
   return (
     <>
       <br></br>
@@ -19,10 +22,8 @@ const Login = (params) => {
         </div>
         <div className="uk-width-1-5">
           <button className="uk-button uk-button-default" onClick={e => {
-            //TODO: generare errore in caso la data sia già presente nel db
-            //TODO: implementare l'inserimento dell'ora, lato server
             e.preventDefault()
-            fetch(`${server_addr}/login`, {
+            fetch(`${server_addr}/auth`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -31,19 +32,18 @@ const Login = (params) => {
                 username: username,
                 password: password
               })
-            }).then(r => {
-              const status = r.status
-              if (status === 401) { //not authorized
-                console.log('response.status: ', status)
-                UIkit.notification({ message: `status: ${status}`, status:'danger' })
-              }
-              r.json()
+            }).then((res) => {
+              if (res.ok) { return res.json(); }
+              else sendErrorMessage(res.status)
             }).then(body => {
-              //TODO: verrà ritorato il JWT (json web token) che dovrà venire impostato globalmente
+              if (body) {
+                setToken(body.jwt)
+                //redirection to the mainpage
+                navigate("/") //TODO: risolvere il warning (poi eliminare gli import non utilizzati)
+              }
               setUsername("")
               setPassword("")
-            }).catch(error => console.log(error))
-            //TODO: se il login va a buon fine, si ridirige l'utente verso la mainpage
+            }).catch(error => console.log('error:', error))
           }}>send</button>
         </div>
       </form>

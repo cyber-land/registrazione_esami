@@ -46,6 +46,21 @@ eseguire (in server_uni)
 composer install
 ```
 
+creazione del file config.json nella cartella server_uni affinchè sia simile a
+
+```json
+{
+	"DB_HOST": "host",
+	"DM_ADDR": "localhost",
+	"DM_NAME": "dbname",
+	"DB_NAME": "registrazione_esami",
+	"DB_USER": "root",
+	"DB_PASS": "password",
+	"DB_CHAR": "utf8",
+	"JWT_SECRET": "2ce207baa983740d6900c625644f54a3"
+}
+```
+
 ## Run
 
 avviare i processi di xampp

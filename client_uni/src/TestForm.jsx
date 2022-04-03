@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Ctx } from './context.jsx'
 
 const TestForm = (params) => {
-  const { student, setTests, exams, server_addr } = useContext(Ctx)
+  const { student, setTests, exams, server_addr, token, retrieveTestsOfStudent, sendErrorMessage } = useContext(Ctx)
   const studente = student[0]
   //TODO: valori di defualt da rimpiazzare, siccome potrebbero essere sbagliati (default di select)
   const [valutazione, setValutazione] = useState("");
@@ -10,7 +10,7 @@ const TestForm = (params) => {
   const [stato, setStato] = useState("accettato");
   const [note, setNote] = useState("");
   const [esame, setEsame] = useState("1");
-
+  if (!exams) return(<></>)
   return (
     <>
       <br></br>
@@ -53,7 +53,8 @@ const TestForm = (params) => {
             fetch(`${server_addr}/tests`, {
               method: "POST",
               headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({
                 valutazione: valutazione,
@@ -64,10 +65,12 @@ const TestForm = (params) => {
                 id_esame: esame,
                 id_professore: 1,
               })
-            }).then(r => r.json()).then(body => {
+            }).then((res) => {
+              if (res.ok) { return res.json(); }
+              else sendErrorMessage(res.status)
+            }).then(body => {
               setTests([])
-              fetch(`${server_addr}/students/${studente.id}/tests`).then(r => r.json())
-                .then(body => { body.map(test => { setTests(tests => [...tests, test]) }) })
+              retrieveTestsOfStudent(studente.id)
             })
           }}>send</button>
         </div>
