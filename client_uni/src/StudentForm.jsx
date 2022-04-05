@@ -2,19 +2,15 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Ctx } from './context.jsx'
 
 const StudentForm = (params) => {
-  const { courses, identificationNumber, retrieveStudent, server_addr } = useContext(Ctx)
+  const { courses, identificationNumber, retrieveStudent, server_addr, token, sendErrorMessage } = useContext(Ctx)
 
   const [matricola, setMatricola] = useState(identificationNumber)
   const [nome, setNome] = useState("")
   const [cognome, setCognome] = useState("")
   const [corso, setCorso] = useState("")
-
   useEffect(() => { setMatricola(identificationNumber) }, [identificationNumber])
-  useEffect(() => {
-    if (courses[0])
-      setCorso(courses[0].descrizione)
-  }, [courses])
-
+  useEffect(() => { if (courses && courses[0]) setCorso(courses[0].descrizione) }, [courses])
+  if (!courses) return (<></>)
   return (
     <>
       <br></br>
@@ -41,11 +37,11 @@ const StudentForm = (params) => {
             //TODO: generare errore in caso la matricola sia già presente nel db
             //TODO: gestire se riceve una risposta che indica errore (controllare status code)
             e.preventDefault()
-            let semaphore = true;
             fetch(`${server_addr}/students`, {
               method: "POST",
               headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({
                 matricola: matricola,
@@ -54,20 +50,11 @@ const StudentForm = (params) => {
                 voto: null,
                 corso: corso
               })
-            }).then(r => {
-              const status = r.status
-              if (status != 200) {
-                console.log('response.status: ', status)
-                UIkit.notification({ message: `status: ${status}`, status:'danger' })
-                semaphore = false
-              }
-              r.json()
+            }).then((res) => {
+              if (res.ok) { return res.json(); }
+              else sendErrorMessage(res.status)
             }).then((body) => {
-              //TODO: body is undefined?!?!
-              if (semaphore) {
-                UIkit.notification({ message: `created new student`, pos: 'top-right' })
-                retrieveStudent()
-              }
+              retrieveStudent()
             }).catch(error => console.log(error))
             setMatricola("")
             setCognome("")

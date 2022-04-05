@@ -2,6 +2,8 @@
     "require": {
         "slim/psr7": "^1.5",
         "slim/slim": "^4.9",
-        "league/plates": "^3.4"
+        "league/plates": "^3.4",
+        "firebase/php-jwt": "5.0.0",
+        "tuupola/slim-jwt-auth": "^3.6"
     }
 }

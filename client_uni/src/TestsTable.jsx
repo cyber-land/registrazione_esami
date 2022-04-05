@@ -3,7 +3,7 @@ import { Ctx } from './context.jsx'
 
 const TestsTable = (params) => {
   const { tests } = useContext(Ctx)
-
+  if (!tests) return (<></>)
   return (
     <>
       {/*<pre>{JSON.stringify(tests, null, 2)}</pre>*/}

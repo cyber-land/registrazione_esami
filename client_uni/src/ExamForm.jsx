@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { Ctx } from './context.jsx'
 
 const ExamForm = (params) => {
-  const { retrieveExams, server_addr } = useContext(Ctx)
+  const { retrieveExams, server_addr, token, sendErrorMessage } = useContext(Ctx)
   const [date, setDate] = useState("")
   const [time, setTime] = useState("")
   return (
@@ -25,13 +25,17 @@ const ExamForm = (params) => {
             fetch(`${server_addr}/exams`, {
               method: "POST",
               headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({
                 data: date,
                 time: time
               })
-            }).then(r => r.json()).then(body => {
+            }).then((res) => {
+              if (res.ok) { return res.json(); }
+              else sendErrorMessage(res.status)
+            }).then(body => {
               retrieveExams()
             }).catch(error => console.log(error))
             setDate("")

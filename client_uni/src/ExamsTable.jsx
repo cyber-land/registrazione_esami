@@ -3,6 +3,7 @@ import { Ctx } from './context.jsx'
 
 const ExamsTable = (params) => {
   const { exams, retrieveExams } = useContext(Ctx)
+  if (!exams) return (<></>)
   return (
     <table className="uk-table uk-table-divider">
       <thead>
@@ -24,9 +25,13 @@ const Exam = (params) => {
   let exam = params.exam
   return (
     <tr>
-      <td>{exam.data.split(" ")[0]}</td>
+      <td>{exam.data.split(" ")[0]}</td>{/*toglie l'ora, mostrando solo la data*/}
       <td>{exam.data.split(" ")[1]}</td>{/*toglie la data, mostrando solo l'ora*/}
-      <td><a download="report.pdf" href={`${server_addr}/exams/${exam.id}/export`}><span uk-icon="push"></span></a></td>
+      <td>
+        <a download="report.pdf" href={`${server_addr}/exams/${exam.id}/export`}>
+          <span uk-icon="push"></span>
+        </a>
+      </td>
     </tr>
   )
 }
