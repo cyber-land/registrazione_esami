@@ -1,52 +1,56 @@
-# Programma per registrare le valutazioni degli esami
+# **_Programma per registrare le valutazioni degli esami_**
 
-## Dettagli
+## **_Dettagli_**
 
 - Gli esami sono 6 e sono calendarizzati secondo date precise
 - L'esame è diviso in due parti la cui somma apporta un massimo di 30 punti
 - Lo studente può scegliere se svolgere le due parti separatamente o contemporaneamente
 - Lo studente può scegliere di accettare o rifiutare una valutazione
 
-### Prima parte
+### **_Prima parte_**
 
 Per superare la prima parte dell'esame sono necessari almeno 8 punti su un massimo di 15 punti disponibili.
 
-### Seconda parte
+### **_Seconda parte**_
 
 Per superare la seconda parte dell'esame sono necessari almeno 8 punti su un massimo di 17 punti disponibili (17 punti equivalgono all'ottenimento della lode).  
 Deve essere svolta entro un massimo di due tentativi, altrimenti anche la prima parte deve essere ripetuta.
 
-### Orale
+### **_Orale_**
 
 Se si ottiene un punteggio complessivo di 16 punti è necessario sottoporsi ad una prova orale per poter raggiungere i 18 punti richiesti.  
 Può fare guadagnare o perdere punti fino ad un massimo di 3 e può essere eseguita anche da chi desidera migliorare il proprio punteggio.
 
-### Correzione
+### **_Correzione_**
 
 L'esame può essere sottoposto alla correzione di più professori, perciò è necessario tenerne traccia.  
 Nello storico degli esami, oltre ai punteggi delle prove, è necessario tenere traccia anche dell'eventuale valutazione orale.
 
-## Build
+## **_Build_**
 
-### Client
+### **_Client_**
 
-eseguire (in client_uni)
+Eseguire (in *client_uni*)
 
 ```bash
 npm i
 ```
 
-### Server
+#### **_Reminder_**
 
-impostare il deployment della cartella 'server_uni'
+Modificare path
 
-eseguire (in server_uni)
+### **_Server_**
+
+Impostare il deployment della cartella *server_uni*
+
+eseguire (in *server_uni*)
 
 ```bash
 composer install
 ```
 
-creazione del file config.json nella cartella server_uni affinchè sia simile a
+Creare il file *config.json* nella cartella *server_uni* affinchè sia simile a
 
 ```json
 {
@@ -61,11 +65,11 @@ creazione del file config.json nella cartella server_uni affinchè sia simile a
 }
 ```
 
-## Run
+## **_Run_**
 
-avviare i processi di xampp
+Avviare i processi di Xampp
 
-eseguire (in client_uni)
+Eseguire (in *client_uni*)
 
 ```bash
 npm run dev
