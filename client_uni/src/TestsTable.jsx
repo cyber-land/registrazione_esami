@@ -49,7 +49,7 @@ function Test(test) {
           id="toggle-animation"
           className="uk-card uk-card-default uk-card-body uk-margin-small"
         >
-          Animation
+          (Edit form)
         </div>
       </td>
     </tr>
