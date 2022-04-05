@@ -4,7 +4,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 require __DIR__ . '/vendor/autoload.php';
 $app = AppFactory::create();
-$app->setBasePath("/server_uni");
+$app->setBasePath("/server_uni"); //"/RegistrazioneEsami/registrazione_esami/server_uni"
 
 //TODO: fare i controlli sull'input (verificare che i valori corrispondenti ad altre tabelle esistano)
 //TODO: tagliare i valori cha hanno un numero per chiave
