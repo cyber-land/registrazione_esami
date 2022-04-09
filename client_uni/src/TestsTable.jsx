@@ -6,7 +6,6 @@ const TestsTable = (params) => {
   if (!tests) return (<></>)
   return (
     <>
-      {/*<pre>{JSON.stringify(tests, null, 2)}</pre>*/}
       <table className="uk-table uk-table-divider">
         <thead>
           <tr>

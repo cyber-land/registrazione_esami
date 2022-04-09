@@ -2,13 +2,12 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Ctx } from './context.jsx'
 
 const StudentForm = (params) => {
-  const { courses, identificationNumber, retrieveStudent, server_addr, token, sendErrorMessage } = useContext(Ctx)
+  const { courses, search_value, retrieveStudent, server_addr, token, sendErrorMessage } = useContext(Ctx)
 
-  const [matricola, setMatricola] = useState(identificationNumber)
+  const [matricola, setMatricola] = useState("")
   const [nome, setNome] = useState("")
   const [cognome, setCognome] = useState("")
   const [corso, setCorso] = useState("")
-  useEffect(() => { setMatricola(identificationNumber) }, [identificationNumber])
   useEffect(() => { if (courses && courses[0]) setCorso(courses[0].descrizione) }, [courses])
   if (!courses) return (<></>)
   return (
@@ -37,30 +36,33 @@ const StudentForm = (params) => {
             //TODO: generare errore in caso la matricola sia già presente nel db
             //TODO: gestire se riceve una risposta che indica errore (controllare status code)
             e.preventDefault()
-            fetch(`${server_addr}/students`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                matricola: matricola,
-                nome: nome,
-                cognome: cognome,
-                voto: null,
-                corso: corso
-              })
-            }).then((res) => {
-              if (res.ok) { return res.json(); }
-              else sendErrorMessage(res.status)
-            }).then((body) => {
-              retrieveStudent()
-            }).catch(error => console.log(error))
-            setMatricola("")
-            setCognome("")
-            setNome("")
-            //setCorso("") //genera un errore se non viene ricaricato il form
-          }}>send</button>
+            if (!matricola || !nome || !cognome || !corso) {
+              sendErrorMessage("invalid fields")
+            } else {
+              fetch(`${server_addr}/students`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                  matricola: matricola,
+                  nome: nome,
+                  cognome: cognome,
+                  voto: null,
+                  corso: corso
+                })
+              }).then((res) => {
+                if (res.ok) { return res.json(); }
+                else sendErrorMessage("conflict")
+              }).then(() => {
+                retrieveStudent()
+              }).catch(error => console.log(error))
+              setMatricola("")
+              setCognome("")
+              setNome("")
+            }
+          }}>create</button>
         </div>
       </form>
     </>

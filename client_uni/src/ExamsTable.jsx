@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { Ctx } from './context.jsx'
 
 const ExamsTable = (params) => {
-  const { exams, retrieveExams } = useContext(Ctx)
+  const { exams } = useContext(Ctx)
   if (!exams) return (<></>)
   return (
     <table className="uk-table uk-table-divider">
@@ -21,7 +21,7 @@ const ExamsTable = (params) => {
 }
 
 const Exam = (params) => {
-  const { server_addr, token } = useContext(Ctx)
+  const { server_addr, token, sendErrorMessage } = useContext(Ctx)
   let exam = params.exam
   return (
     <tr>
@@ -36,7 +36,7 @@ const Exam = (params) => {
             }
           }).then((res) => {
             if (res.ok) { return res.json(); }
-            else sendErrorMessage(res.status)
+            else sendErrorMessage("impossible retrieve pdf data")
           }).then((body) => {
             console.log(body)
           }).catch(error => console.log(error))

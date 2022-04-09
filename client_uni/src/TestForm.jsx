@@ -2,22 +2,25 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Ctx } from './context.jsx'
 
 const TestForm = (params) => {
-  const { student, setTests, exams, server_addr, token, retrieveTestsOfStudent, sendErrorMessage } = useContext(Ctx)
-  const studente = student[0]
-  //TODO: valori di defualt da rimpiazzare, siccome potrebbero essere sbagliati (default di select)
+  const { student, setTests, exams, server_addr, token, sendErrorMessage, parseJwt } = useContext(Ctx)
   const [valutazione, setValutazione] = useState("");
   const [tipologia, setTipologia] = useState("teoria");
   const [stato, setStato] = useState("accettato");
   const [note, setNote] = useState("");
-  const [esame, setEsame] = useState("1");
-  if (!exams) return(<></>)
+  const [esame, setEsame] = useState("");
+  const voto_studente = student.voto ? student.voto : "<void>"
+  useEffect(() => { if (exams && exams[0]) setEsame(exams[0].id) }, [exams])
+  if (!exams) return (<></>)
   return (
     <>
       <br></br>
-      <h3 className="uk-child-width-1-3@s" uk-grid="true">
-        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{studente.cognome}</div>
-        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{studente.nome}</div>
-        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{studente.corso}</div>
+      <h3 className="uk-child-width-1-6@s" uk-grid="true">
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.matricola}</div>
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.cognome}</div>
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.nome}</div>
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.corso}</div>
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{voto_studente}/30</div>
+        <button className="uk-button uk-button-default" onClick={e => { }} >modify</button>
       </h3>
       <form uk-grid="true">
         <div className="uk-width-1-6">
@@ -50,29 +53,32 @@ const TestForm = (params) => {
         <div className="uk-width-1-6">
           <button className="uk-button uk-button-default" onClick={e => {
             e.preventDefault()
-            fetch(`${server_addr}/tests`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                valutazione: valutazione,
-                tipologia: tipologia,
-                stato: stato,
-                note: note,
-                id_studente: studente.id,
-                id_esame: esame,
-                id_professore: 1,
+            if (!valutazione || !tipologia || !stato || !esame) {
+              sendErrorMessage("invalid fields")
+            } else {
+              fetch(`${server_addr}/tests`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                  valutazione: valutazione,
+                  tipologia: tipologia,
+                  stato: stato,
+                  note: note,
+                  id_studente: student.id,
+                  id_esame: esame,
+                  id_professore: parseJwt(token).data.id,
+                })
+              }).then((res) => {
+                if (res.ok) { return res.json(); }
+                else sendErrorMessage("invalid fields")
+              }).then(() => {
+                setTests([])
               })
-            }).then((res) => {
-              if (res.ok) { return res.json(); }
-              else sendErrorMessage(res.status)
-            }).then(body => {
-              setTests([])
-              retrieveTestsOfStudent(studente.id)
-            })
-          }}>send</button>
+            }
+          }}>create</button>
         </div>
       </form>
     </>

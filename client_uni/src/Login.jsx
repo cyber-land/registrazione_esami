@@ -1,12 +1,10 @@
 import { useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Ctx } from './context.jsx'
 
 const Login = (params) => {
-  const { server_addr, token, setToken, sendErrorMessage } = useContext(Ctx)
+  const { server_addr, setToken, sendErrorMessage } = useContext(Ctx)
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const navigate = useNavigate()
 
   return (
     <>
@@ -34,15 +32,13 @@ const Login = (params) => {
               })
             }).then((res) => {
               if (res.ok) { return res.json(); }
-              else sendErrorMessage(res.status)
+              else sendErrorMessage("wrong credentials")
             }).then(body => {
               if (body) {
                 setToken(body.jwt)
-                //redirection to the mainpage
-                navigate("/") //TODO: risolvere il warning (poi eliminare gli import non utilizzati)
               }
-              setUsername("")
-              setPassword("")
+              //setUsername("")
+              //setPassword("")
             }).catch(error => console.log('error:', error))
           }}>send</button>
         </div>

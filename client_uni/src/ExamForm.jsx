@@ -22,23 +22,29 @@ const ExamForm = (params) => {
             //TODO: generare errore in caso la data sia già presente nel db
             //TODO: implementare l'inserimento dell'ora, lato server
             e.preventDefault()
-            fetch(`${server_addr}/exams`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                data: date,
-                time: time
-              })
-            }).then((res) => {
-              if (res.ok) { return res.json(); }
-              else sendErrorMessage(res.status)
-            }).then(body => {
-              retrieveExams()
-            }).catch(error => console.log(error))
-            setDate("")
+            if (!date) {
+              sendErrorMessage("invalid fields")
+            } else {
+              let data = date
+              if (time)
+                data+=' '+time
+              fetch(`${server_addr}/exams`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                  data: data
+                })
+              }).then((res) => {
+                if (res.ok) { return res.json(); }
+                else sendErrorMessage("invalid fields")
+              }).then(body => {
+                retrieveExams()
+              }).catch(error => console.log(error))
+              setDate("")
+            }
           }}>send</button>
         </div>
         <div className="uk-width-1-6">

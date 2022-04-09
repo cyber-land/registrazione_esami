@@ -2,8 +2,9 @@ import { useContext } from 'react'
 import { Link } from "react-router-dom"
 import { Ctx } from './context.jsx'
 
+//TODO: aggiungere l'username dell'utente connesso
 const Navbar = (params) => {
-  const { identificationNumber, setIdentificationNumber } = useContext(Ctx)
+  const { search_value, set_search_value, setToken } = useContext(Ctx)
   return (
     <nav className="uk-navbar-container" uk-navbar="true">
       <div className="uk-navbar-left">
@@ -18,10 +19,12 @@ const Navbar = (params) => {
               <form className="uk-search uk-search-navbar">
                 <span uk-search-icon="true"></span>
                 <input className="uk-search-input" type="search" placeholder="Search"
-                  value={identificationNumber} onChange={e => {
+                  value={search_value} onChange={e => {
                     //TODO: premendo enter riavvia tutto senza motivo
                     //TODO: può capitare che vada fuori sync quando vengono cancellati i valori (ctrl+a, return)
-                    setIdentificationNumber(e.target.value)
+                    //TODO: mostra un cascade menu con tutte i possiibli risultati (se maggiori di uno)
+                    // dopo aver selezionato un valore dalla lista viene fatta la sua ricerca
+                    set_search_value(e.target.value)
                   }}></input>
               </form>
             </div>
@@ -35,29 +38,14 @@ const Navbar = (params) => {
             <Link to="/exams" >exams</Link>
           </li>
           <li>
-            <LoginIcon />
+          <Link className="uk-navbar-nav" to="/" onClick={() => { setToken("") }} >
+            logout
+          </Link>
           </li>
         </ul>
       </div>
     </nav>
   )
-}
-
-const LoginIcon = () => {
-  const { token, setToken } = useContext(Ctx)
-  if (token) {
-    return (
-      <Link className="uk-navbar-nav" to="/" onClick={() => { setToken("") }} >
-        logout
-      </Link>
-    )
-  } else {
-    return (
-      <Link className="uk-navbar-item uk-logo" to="/login" >
-        <span uk-icon="sign-in"></span>
-      </Link>
-    )
-  }
 }
 
 export default Navbar;

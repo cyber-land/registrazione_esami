@@ -11,7 +11,7 @@
 
 Per superare la prima parte dell'esame sono necessari almeno 8 punti su un massimo di 15 punti disponibili.
 
-### **_Seconda parte**_
+### **_Seconda parte_**
 
 Per superare la seconda parte dell'esame sono necessari almeno 8 punti su un massimo di 17 punti disponibili (17 punti equivalgono all'ottenimento della lode).  
 Deve essere svolta entro un massimo di due tentativi, altrimenti anche la prima parte deve essere ripetuta.
@@ -36,9 +36,7 @@ Eseguire (in *client_uni*)
 npm i
 ```
 
-#### **_Reminder_**
-
-Modificare path
+Modificare il `server_addr` in `main.jsx`
 
 ### **_Server_**
 
@@ -65,9 +63,11 @@ Creare il file *config.json* nella cartella *server_uni* affinchè sia simile a
 }
 ```
 
+modificare il `BASE_PATH` in `index.php` se la definizione automatica dovesse fallire
+
 ## **_Run_**
 
-Avviare i processi di Xampp
+Avviare i processi di Xampp (mysql database, apache web server)
 
 Eseguire (in *client_uni*)
 
