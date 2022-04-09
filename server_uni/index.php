@@ -3,6 +3,7 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
+use Slim\Exception\HttpNotFoundException;
 use Tuupola\Middleware\JwtAuthentication;
 use Firebase\JWT\JWT;
 
@@ -14,7 +15,7 @@ $app->setBasePath("/server_uni"); //"/RegistrazioneEsami/registrazione_esami/ser
 $data = file_get_contents('config.json');
 $obj = json_decode($data, true);
 $pdo = new PDO(
-	"mysql:{$obj['DB_host']}={$obj['DM_ADDR']};{$obj['DM_NAME']}={$obj['DB_NAME']}",
+	"mysql:{$obj['DB_HOST']}={$obj['DM_ADDR']};{$obj['DM_NAME']}={$obj['DB_NAME']}",
 	$obj['DB_USER']
 );
 
@@ -24,6 +25,20 @@ $pdo = new PDO(
 //TODO: definire gli statuscode di ritorno lato server poi gestirli lato client
 
 define('JWT_SECRET', (string)$obj['JWT_SECRET']);
+
+//bypass CORS
+$app->options('/{routes:.+}', function ($request, $response, $args) {
+	return $response;
+});
+
+//bypass CORS
+$app->add(function ($request, $handler) {
+	$response = $handler->handle($request);
+	return $response
+		->withHeader('Access-Control-Allow-Origin', 'http://mysite')
+		->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+		->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+});
 
 //eliminare l'accesso ai percorsi che non hanno un token valido nel l'header
 $app->add(
@@ -43,7 +58,7 @@ function getToken($data): string
 	} catch (Exception $e) {}
 	$serverName = 'server_name.com';
 	$issuedAt = new DateTimeImmutable();
-	$expire = $issuedAt->modify('+2 minutes')->getTimestamp();
+	$expire = $issuedAt->modify('+5 minutes')->getTimestamp();
 	$data = [
 		'iat' => $issuedAt->getTimestamp(),    // Issued at: time when the token was generated
 		'jti' => $tokenId,                     // Json Token Id: a unique identifier for the token
@@ -58,7 +73,7 @@ function getToken($data): string
 //TODO: muovere in un altro file
 function authentication(string $username, string $password): ?string
 {
-	$pdo = new PDO('mysql:host=localhost;dbname=registrazione_esami', 'root');
+	global $pdo;
 	$sql = 'SELECT id, password FROM professore WHERE username = :username';
 	$stmt = $pdo->prepare($sql);
 	$stmt->execute(['username' => $username]);
@@ -149,6 +164,33 @@ $app->get('/{table}/{id}', function (Request $request, Response $response, array
 		$response->getBody()->write(json_encode("invalid table name: " . $table));
 	}
 	return $response->withHeader('Content-Type', 'application/json');
+});
+
+$app->get('/exams/{id}/pdf', function (Request $request, Response $response, $args) use ($pdo) {
+	/* matricola, cognome(3), nome(3), voto teoria, voto programmazione, totale, note
+	i voti possono essere:
+	- numero (se eseguito e sufficiente)
+	- INSUFF (se insufficiente)
+	- vuoto (se fatto in esami precedenti o non ancora svolto)
+	*/
+	//note può essere:
+	// - orale obbligatorio (se totale è 16 o 17)
+	// - da rifare la teoria (se ci sono due insuff della 2°)
+
+	//dato l'esame in questione, recuperare tutte le prove collegate e gli studenti collegati ad esse
+	//il risultato finale è una mappa (dati dello studente : voti delle sue prove)
+	/*
+		try {
+			$sql = 'select * from prova, esame where id_esame = esame.id';
+			$stmt = $pdo->prepare($sql);
+			$stmt->execute(['id' => $args['id']]);
+			$result = $stmt->fetchAll();
+			$response->getBody()->write(json_encode($result));
+		} catch (Exception $e) {echo $e->getMessage();}
+	*/
+	$data = "pdf";
+	$response->getBody()->write(json_encode($data));
+	return $response;
 });
 
 $app->post('/students', function (Request $request, Response $response, $args) use ($pdo) {
@@ -324,6 +366,11 @@ $app->put('/tests/{id}', function (Request $request, Response $response, array $
 	$response->getBody()->write(json_encode($result));
 	$response->withHeader('Content-Type', 'application/json');
 	return $response;
+});
+
+//bypass CORS
+$app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function ($request, $response) {
+	throw new HttpNotFoundException($request);
 });
 
 $app->run();
