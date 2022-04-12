@@ -20,11 +20,12 @@ const Main = () => {
   }
   const [search_value, set_search_value] = useState("")  // valore che viene ricercato (matricola/cognome)
   const [student, setStudent] = useState("")  // dati dello studente
-  const [tests, setTests] = useState([])      // lista dei test riferiti allo studente
+  const [tests, setTests] = useState([])      // lista dei ùtest riferiti allo studente
   const [courses, setCourses] = useState([])  // lista di tutti i corsi
   const [exams, setExams] = useState([])      // lista di tutti gli esami
   const [token, setToken] = useState(JSON.parse(localStorage.getItem("jwt"))) // JWT (json web token)
-  const server_addr = "http://localhost:8080/server_uni"
+  const server_addr = "http://localhost/RegistrazioneEsami/registrazione_esami/server_uni"
+  // const server_addr = "http://localhost:8080/server_uni"
 
   function retrieveExams() {
     fetch(`${server_addr}/exams`, {
@@ -85,12 +86,10 @@ const Main = () => {
         }).then(body => { if (body) setToken(body.jwt) })
       }, (jwtparsed.exp - jwtparsed.iat)/2 * 1000);
       console.log(timer)
-      return () => clearTimeout(timer);
-    }
-    if (token) {
       retrieveCourses()
       retrieveExams()
       retrieveStudent()
+      return () => clearTimeout(timer);
     }
   }, [token])
   

@@ -11,7 +11,8 @@ require __DIR__ . '/vendor/autoload.php';
 $app = AppFactory::create();
 
 //recupera da __DIR__ uno slice successivo ad 'htdocs'
-define('BASE_PATH', substr(__DIR__, strpos(__DIR__, "htdocs")+6));
+define('BASE_PATH', '/RegistrazioneEsami/registrazione_esami/server_uni');
+// define('BASE_PATH', substr(__DIR__, strpos(__DIR__, "htdocs")+6));
 
 $app->setBasePath(BASE_PATH); //"/RegistrazioneEsami/registrazione_esami/server_uni"
 
