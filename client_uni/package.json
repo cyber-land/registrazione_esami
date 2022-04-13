@@ -24,6 +24,7 @@
     "vite": "^2.8.6"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "file:node_modules/@tailwindcss/typography",
     "autoprefixer": "^10.4.4",
     "postcss": "^8.4.12",
     "tailwindcss": "^3.0.24"

@@ -8,9 +8,10 @@ import Login from './Login.jsx'
 import StudentForm from './StudentForm.jsx'
 import TestForm from './TestForm.jsx'
 import TestsTable from './TestsTable.jsx'
+import Home from './Home.jsx';
 import { Ctx } from './context.jsx'
 import './index.css'
-import { themeChange } from 'theme-change';
+// import { themeChange } from 'theme-change';
 
 const Main = () => {
 
@@ -164,14 +165,19 @@ const Main = () => {
           {token ? <>
             <Navbar />
             <Routes>
+              <Route path="*" element={
+                  <Home />
+              }>
+              </Route>
               <Route path="/exams" element={
                 <>
                   <ExamForm />
                   <ExamsTable />
                 </>
               } />
-              <Route path="*" element={
-                <Hero student={student} />
+              <Route path="/addstudent" element={
+                // <Hero student={student} />
+                <StudentForm />
               } />
             </Routes>
           </> : <Login />}
@@ -187,3 +193,8 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 )
+
+/* IDEAS:
+* (❌ searchbar) (✅ search icon → click → apre modal con searchbar) e (⚠️ dati studente)
+* 
+*/
