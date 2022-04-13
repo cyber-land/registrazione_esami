@@ -9,8 +9,18 @@ import StudentForm from './StudentForm.jsx'
 import TestForm from './TestForm.jsx'
 import TestsTable from './TestsTable.jsx'
 import { Ctx } from './context.jsx'
+import './index.css'
+import { themeChange } from 'theme-change';
 
 const Main = () => {
+
+  //IDEA: change theme
+  /*
+  useEffect(() => {
+    themeChange(false)
+  }, [])
+  */
+
   function parseJwt(token) {
     try {
       return JSON.parse(atob(token.split('.')[1]));
