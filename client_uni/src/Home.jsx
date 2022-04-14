@@ -3,7 +3,7 @@ import { Ctx } from './context.jsx'
 
 const Home = (params) => {
     return (
-        <div className="hero min-h-screen bg-base-200">
+        <div className="hero min-h-screen">
             <div className="hero-content text-center">
               <div className="max-w-md">
                 <h1 className="text-5xl font-bold">Buongiorno prof. *cognome*</h1>

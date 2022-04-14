@@ -115,10 +115,9 @@ const Main = () => {
   //TODO: limitare (con un timer) il numero di messaggi inviati
   function sendErrorMessage(message) {
     const msg = message
-    UIkit.notification({
+    DaisyUI.alert({
       message: msg,
-      status: 'warning',
-      pos: 'bottom-right'
+      status: "error"
     })
   }
 

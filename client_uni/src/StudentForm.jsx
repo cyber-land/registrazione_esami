@@ -19,7 +19,7 @@ const StudentForm = (params) => {
         </div>
         <div className="footer-title">
           <input className="" type="text" placeholder="cognome"
-            value={nome} onChange={e => { setCognome(e.target.value) }} ></input>
+            value={cognome} onChange={e => { setCognome(e.target.value) }} ></input>
         </div>
         <div className="footer-title">
           <input className="" type="text" placeholder="nome"
@@ -61,7 +61,7 @@ const StudentForm = (params) => {
               setCognome("")
               setNome("")
             }
-          }}>create</button>
+          }}>Create</button>
         </div>
       </form>
     </>
