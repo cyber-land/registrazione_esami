@@ -7,18 +7,21 @@ const ExamsTable = (params) => {
   const { exams } = useContext(Ctx)
   if (!exams) return (<></>)
   return (
-    <table className="uk-table uk-table-divider">
-      <thead>
-        <tr>
-          <th>date</th>
-          <th>time</th>
-          <th>export</th>
-        </tr>
-      </thead>
-      <tbody>
-        {exams.map((exam, pos) => <Exam key={pos} exam={exam} />)}
-      </tbody>
-    </table>
+    <div className="overlow-x-auto">
+      <table className="table w-full">
+        <thead>
+          <tr>
+            <th></th>
+            <th>DATE</th>
+            <th>TIME</th>
+            <th>EXPORT</th>
+          </tr>
+        </thead>  
+        <tbody>
+          {exams.map((exam, pos) => <Exam key={pos} exam={exam} />)}
+        </tbody>
+      </table>
+    </div>
   )
 }
 
@@ -27,7 +30,8 @@ const Exam = (params) => {
   const exam = params.exam
   const [pdf_data, set_pdf_data] = useState("")
   return (
-    <tr>
+    <tr className="hover">
+      <th>{/*{exam.id}*/}</th>
       <td>{exam.data.split(" ")[0]}</td>{/*toglie l'ora, mostrando solo la data*/}
       <td>{exam.data.split(" ")[1]}</td>{/*toglie la data, mostrando solo l'ora*/}
       <td>
@@ -58,8 +62,8 @@ const Exam = (params) => {
               }
             }, [pdf_data])
           } type="button">
-            Download
-          </button>
+              <img src="https://img.icons8.com/ios/25/000000/download--v1.png"/>
+            </button>
         </a>
       </td>
     </tr>

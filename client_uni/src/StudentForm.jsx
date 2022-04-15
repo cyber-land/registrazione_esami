@@ -12,27 +12,26 @@ const StudentForm = (params) => {
   if (!courses) return (<></>)
   return (
     <>
-      <br></br>
-      <form uk-grid="true">
-        <div className="uk-width-1-5">
-          <input className="uk-input" type="text" placeholder="matricola"
+      <form className="footer p-10 text-base-context">
+        <div className="footer-title">
+          <input className="" type="text" placeholder="matricola"
             value={matricola} onChange={e => { setMatricola(e.target.value) }} ></input>
         </div>
-        <div className="uk-width-1-5">
-          <input className="uk-input" type="text" placeholder="cognome"
-            value={nome} onChange={e => { setNome(e.target.value) }} ></input>
-        </div>
-        <div className="uk-width-1-5">
-          <input className="uk-input" type="text" placeholder="nome"
+        <div className="footer-title">
+          <input className="" type="text" placeholder="cognome"
             value={cognome} onChange={e => { setCognome(e.target.value) }} ></input>
         </div>
-        <div className="uk-width-1-5">
-          <select className="uk-select" value={corso} onChange={e => { setCorso(e.target.value) }} >
+        <div className="footer-title">
+          <input className="" type="text" placeholder="nome"
+            value={nome} onChange={e => { setNome(e.target.value) }} ></input>
+        </div>
+        <div className="footer-title">
+          <select className="" value={corso} onChange={e => { setCorso(e.target.value) }} >
             {courses.map((course, pos) => <option key={pos}> {course.descrizione} </option>)}
           </select>
         </div>
-        <div className="uk-width-1-5">
-          <button className="uk-button uk-button-default" onClick={e => {
+        <div className="">
+          <button className="" onClick={e => {
             //TODO: generare errore in caso la matricola sia già presente nel db
             //TODO: gestire se riceve una risposta che indica errore (controllare status code)
             e.preventDefault()
@@ -62,7 +61,7 @@ const StudentForm = (params) => {
               setCognome("")
               setNome("")
             }
-          }}>create</button>
+          }}>Create</button>
         </div>
       </form>
     </>

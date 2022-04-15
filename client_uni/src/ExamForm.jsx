@@ -7,18 +7,20 @@ const ExamForm = (params) => {
   const [time, setTime] = useState("")
   return (
     <>
-      <br></br>
-      <form uk-grid="true">
-        <div className="uk-width-1-3">
-          <input className="uk-input" type="date" placeholder="date"
+      <form className="footer p-10 text-base-context">
+      <div className="footer-title"></div>
+      <div className="footer-title">
+          <input className="" type="date" placeholder="date"
             value={date} onChange={e => { setDate(e.target.value) }} ></input>
         </div>
-        <div className="uk-width-1-3">
-          <input className="uk-input" type="time" placeholder="date"
+        <div className="footer-title"></div>
+        <div className="footer-title">
+          <input className="" type="time" placeholder="date"
             value={time} onChange={e => { setTime(e.target.value) }} ></input>
         </div>
-        <div className="uk-width-1-6">
-          <button className="uk-button uk-button-default" onClick={e => {
+        <div className="footer-title"></div>
+        <div className="footer-title">
+          <button className="" onClick={e => {
             //TODO: generare errore in caso la data sia già presente nel db
             //TODO: implementare l'inserimento dell'ora, lato server
             e.preventDefault()
@@ -45,13 +47,7 @@ const ExamForm = (params) => {
               }).catch(error => console.log(error))
               setDate("")
             }
-          }}>send</button>
-        </div>
-        <div className="uk-width-1-6">
-          <button className="uk-button uk-button-default" onClick={e => {
-            e.preventDefault()
-            retrieveExams()
-          }}>reload</button>
+          }}>Send</button>
         </div>
       </form>
     </>
