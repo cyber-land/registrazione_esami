@@ -59,11 +59,10 @@ Creare il file *config.json* nella cartella *server_uni* affinchè sia simile a
   "DB_USER": "root",
   "DB_PASS": "password",
   "DB_CHAR": "utf8",
-  "JWT_SECRET": "2ce207baa983740d6900c625644f54a3"
+  "JWT_SECRET": "2ce207baa983740d6900c625644f54a3",
+  "LOCAL_PATH": "/local/path/of/the/server"
 }
 ```
-
-modificare il `BASE_PATH` in `index.php` se la definizione automatica dovesse fallire
 
 ## **_Run_**
 

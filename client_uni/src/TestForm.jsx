@@ -8,7 +8,7 @@ const TestForm = (params) => {
   const [stato, setStato] = useState("accettato");
   const [note, setNote] = useState("");
   const [esame, setEsame] = useState("");
-  const voto_studente = student.voto ? student.voto : "<void>"
+  const voto_studente = student.voto ? student.voto+"/30" : "<void>"
   useEffect(() => { if (exams && exams[0]) setEsame(exams[0].id) }, [exams])
   if (!exams) return (<></>)
   return (
@@ -19,7 +19,7 @@ const TestForm = (params) => {
         <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.cognome}</div>
         <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.nome}</div>
         <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.corso}</div>
-        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{voto_studente}/30</div>
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{voto_studente}</div>
         <button className="uk-button uk-button-default" onClick={e => { }} >modify</button>
       </h3>
       <form uk-grid="true">
