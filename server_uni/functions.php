@@ -29,14 +29,14 @@ function getToken($data): string
 function authentication(string $username, string $password): ?string
 {
 	global $pdo;
-	$sql = 'SELECT id, password FROM professore WHERE username = :username';
+	$sql = 'SELECT id, cognome, password FROM professore WHERE username = :username';
 	$stmt = $pdo->prepare($sql);
 	$stmt->execute(['username' => $username]);
 	$user = $stmt->fetch();
 	// controlla se l'utente esiste e se la password corrisponde all'hash
 	if ($user === false || !password_verify($password, $user['password']))
 		return null;
-	$data = array('id' => $user['id'], 'username' => $username);
+	$data = array('id' => $user['id'], 'surname' => $user['cognome'], 'username' => $username);
 	return getToken($data);
 }
 

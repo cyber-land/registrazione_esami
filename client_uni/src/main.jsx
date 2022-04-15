@@ -35,7 +35,7 @@ const Main = () => {
   const [courses, setCourses] = useState()  // lista di tutti i corsi
   const [exams, setExams] = useState()      // lista di tutti gli esami
   const [token, setToken] = useState(JSON.parse(localStorage.getItem("jwt"))) // JWT (json web token)
-  const server_addr = "http://localhost:8080/server_uni"
+  const server_addr = "http://localhost/RegistrazioneEsami/registrazione_esami/server_uni"
 
   function retrieveExams() {
     fetch(`${server_addr}/exams`, {
@@ -112,10 +112,6 @@ const Main = () => {
   //TODO: limitare (con un timer) il numero di messaggi inviati
   function sendErrorMessage(message) {
     const msg = message
-    DaisyUI.alert({
-      message: msg,
-      status: "error"
-    })
   }
 
   const Hero = () => {
