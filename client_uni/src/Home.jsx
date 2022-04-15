@@ -22,13 +22,20 @@ const ExamsList = (params) => {
   } else return (<></>)    
 }
 
+const Name  = () => {
+  const { ref_token_parsed } = useContext(Ctx)
+  if (ref_token_parsed.current) {
+    return (<h1 className="text-4xl font-bold">Buongiorno prof. {ref_token_parsed.current.data.surname}</h1>)
+  } else
+    return (<></>)
+}
+
 const Home = (params) => {
-  const { parseJwt, token } = useContext(Ctx)
     return (
         <div className="hero min-h-screen">
             <div className="hero-content text-center">
               <div className="max-w-md">
-                <h1 className="text-4xl font-bold">Buongiorno prof. {parseJwt(token).data.surname}</h1>
+                <Name />
                 <p className="py-6">Attività di oggi:</p>
                 <ExamsList />
               </div>

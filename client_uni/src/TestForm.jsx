@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Ctx } from './context.jsx'
 
 const TestForm = (params) => {
-  const { student, setTests, exams, server_addr, token, sendErrorMessage, parseJwt } = useContext(Ctx)
+  const { student, setTests, exams, server_addr, token, sendErrorMessage, ref_token_parsed } = useContext(Ctx)
   const [valutazione, setValutazione] = useState("");
   const [tipologia, setTipologia] = useState("teoria");
   const [stato, setStato] = useState("accettato");
@@ -69,7 +69,7 @@ const TestForm = (params) => {
                   note: note,
                   id_studente: student.id,
                   id_esame: esame,
-                  id_professore: parseJwt(token).data.id,
+                  id_professore: ref_token_parsed.current.data.id,
                 })
               }).then((res) => {
                 if (res.ok) { return res.json(); }

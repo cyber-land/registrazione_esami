@@ -62,7 +62,7 @@ const Exam = (params) => {
               }
             }, [pdf_data])
           } type="button">
-              <img src="https://img.icons8.com/ios/25/000000/download--v1.png"/>
+              <img src="../assets/icons/download_24.png"/>
             </button>
         </a>
       </td>

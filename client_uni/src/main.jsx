@@ -35,7 +35,10 @@ const Main = () => {
   const [courses, setCourses] = useState()  // lista di tutti i corsi
   const [exams, setExams] = useState()      // lista di tutti gli esami
   const [token, setToken] = useState(JSON.parse(localStorage.getItem("jwt"))) // JWT (json web token)
-  const server_addr = "http://localhost/RegistrazioneEsami/registrazione_esami/server_uni"
+  const [token_parsed, set_token_parsed] = useState()
+  const server_addr = "http://localhost:8080/server_uni"
+  const ref_token_parsed = useRef()         // riferimento al token decodificato
+  ref_token_parsed.current = token_parsed
 
   function retrieveExams() {
     fetch(`${server_addr}/exams`, {
@@ -79,8 +82,13 @@ const Main = () => {
   useEffect(() => {
     localStorage.setItem("jwt", JSON.stringify(token))
     if (token) {
-      const jwtparsed = parseJwt(token)
-      const expirationTime = jwtparsed.exp
+      set_token_parsed(parseJwt(token))
+    }
+  }, [token])
+
+  useEffect(() => {
+    if (token_parsed) {
+      const expirationTime = token_parsed.exp
       const currentTime = Math.round(Date.now() / 1000) //seconds since epoch
       if (currentTime < expirationTime) { //token valid
         //rigenerazione automatica del token quando la sua vita supera la metà
@@ -93,7 +101,7 @@ const Main = () => {
           }).then(body => { 
             if (body) setToken(body.jwt) 
           }).catch(error => console.log('error:', error))
-        }, (jwtparsed.exp - jwtparsed.iat)/2 * 1000);
+        }, (token_parsed.exp - token_parsed.iat)/2 * 1000);
         if (!courses) retrieveCourses()
         if (!exams) retrieveExams()
         //retrieveStudent()
@@ -101,8 +109,8 @@ const Main = () => {
       } else { // token expired
         setToken("")
       }
-    }
-  }, [token])
+    }    
+  }, [token_parsed])
   
   //quando la matricola cambia viene chiesto al server se esiste uno studente che abbia quella matricola
   //TODO: limitare il numero di chiamate utilizzando un timer
@@ -147,11 +155,11 @@ const Main = () => {
         courses/*studentform*/, 
         tests/*testtable*/, setTests/*testform*/,
         student/*testform, studentform*/, retrieveStudent/*StudentForm*/, 
-        exams/*testform, examstable*/, retrieveExams/*ExamForm*/,
+        exams/*testform, examstable, home*/, retrieveExams/*ExamForm*/,
         token, setToken/*login, navbar*/,
         server_addr,
-        sendErrorMessage,
-        parseJwt/*testform*/
+        sendErrorMessage, 
+        ref_token_parsed/*testform, home*/
       }}>
         <BrowserRouter>
           {token ? <>

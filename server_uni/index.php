@@ -24,9 +24,9 @@ $pdo = new PDO(
 	$obj['DB_USER']
 );
 
-//TODO: definire gli statuscode di ritorno lato server poi gestirli lato client
-//TODO: impostare i limiti degli output affinchè la loro dimensione sia moderata
-//TODO: limitare client-side il numero di fetch eseguite
+//TODO: definire gli status-code di ritorno lato server poi gestirli lato client
+//TODO: impostare i limiti degli output affinché la loro dimensione sia moderata
+//TODO: ritornare l'id (comando per ultimo inserimento della sessione anche in altre zone)
 
 define('JWT_SECRET', (string)$obj['JWT_SECRET']);
 
@@ -56,7 +56,11 @@ $app->add(
 //ritorna un nuovo token con gli stessi dati del token usato per chiamare questo metodo
 $app->get('/renew_token', function (Request $request, Response $response, array $args) {
 	$jwt = $request->getAttribute("token"); //recupera il token già decodificato
-	$data = array('id' => $jwt['data']->{'id'}, 'username' => $jwt['data']->{'username'});
+	$data = array(
+		'id' => $jwt['data']->{'id'},
+		'surname' => $jwt['data']->{'surname'},
+		'username' => $jwt['data']->{'username'}
+	);
 	$response->getBody()->write(json_encode(array('jwt' => getToken($data))));
 	return $response->withHeader('Content-Type', 'application/json');
 });
@@ -66,23 +70,30 @@ $app->get('/status', function (Request $request, Response $response, array $args
 	return $response->withHeader('Content-Type', 'application/json');
 });
 
-//ritorna gli studenti che possiedono dati che rispettano il pattern cercato
-//e ritorna anche i loro test associati
-//TODO: matricola uguale, non simile
+//ritorna gli studenti (e i loro test associati) che possiedono dati che rispettano il pattern cercato
 $app->get('/students/search={pattern}', function (Request $request, Response $response, array $args) use ($pdo) {
 	$pattern = "";
-	try {$pattern = $args['pattern'];} //TODO: controllo di validità
+	try {$pattern = $args['pattern'];}
 	catch (Exception $e) {}
 	$sql = "select studente.id, nome, cognome, matricola, id_corso, voto, descrizione as corso 
 					from studente, corso where corso.id = studente.id_corso and 
-					(matricola like :pattern or cognome like :pattern or nome like :pattern)";
+					(cognome like :pattern or nome like :pattern) limit 5";
+	//se la ricerca viene fatta per matricola (numero) allora controlla se ci sia una matricola uguale
+	//altrimenti controlla se cognome e nome inizino con il pattern
+	if (is_numeric($pattern)) {
+		$sql = "select studente.id, nome, cognome, matricola, id_corso, voto, descrizione as corso 
+					from studente, corso where corso.id = studente.id_corso and matricola = :pattern";
+	}
 	$stmt = $pdo->prepare($sql);
-	$stmt->execute(['pattern' => "%".$pattern.'%']);
+	if (is_numeric($pattern)) {
+		$stmt->execute(['pattern' => $pattern]);
+	} else {
+		$stmt->execute(['pattern' => $pattern.'%']);
+	}
 	$students = $stmt->fetchAll();
 	$res = array();
 	foreach ($students as $row) {
-		$sql = 'select * from prova, esame where id_esame = esame.id 
-						and id_studente = :id order by esame.data desc, prova.id desc';
+		$sql = 'select * from prova, esame where id_esame = esame.id and id_studente = :id order by esame.data desc, prova.id desc';
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute(['id' => $row['id']]);
 		$result = $stmt->fetchAll();
@@ -191,8 +202,7 @@ $app->post('/students', function (Request $request, Response $response, $args) u
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute(['descrizione' => $value->{'corso'}]);
 		$id_corso = $stmt->fetchAll();
-		$sql = 'INSERT INTO studente (matricola, nome, cognome, voto, id_corso) 
-						VALUES (:matricola, :nome, :cognome, :voto, :id_corso)';
+		$sql = 'INSERT INTO studente (matricola, nome, cognome, voto, id_corso) VALUES (:matricola, :nome, :cognome, :voto, :id_corso)';
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute([
 			'matricola' => $value->{'matricola'},
@@ -233,16 +243,19 @@ $app->post('/tests', function (Request $request, Response $response, array $args
 			'id_professore' => $value->{'id_professore'}
 		]);
 		$stmt->fetchAll();
+		$sql = 'SELECT LAST_INSERT_ID() as last_id';
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute();
+		$last_id_insert = $stmt->fetchAll();
+		$response->getBody()->write(json_encode(array('id' => $last_id_insert[0]['last_id']))); //ritorna l'id del nuovo elemento
 		$response = $response->withStatus(201); //created
 	} else {
+		$response->getBody()->write($is_correct[1]); //ritorna l'errore che ha fatto fallire l'inserimento
 		$response = $response->withStatus(428); //precondition required
 	}
-	//TODO: ritornare l'id (comando per ultimo inserimento della sessione anche in altre zone)
-	$response->getBody()->write(json_encode($is_correct));
 	return $response->withHeader('Content-Type', 'application/json');
 });
 
-//TODO: la data deve essere univoca? se non è univoca la data allora serve il tempo altrimenti bisogna eliminare il tempo globalmente
 $app->post('/exams', function (Request $request, Response $response, array $args) use ($pdo) {
 	//{"data":"2022-03-17 15:24:21"} or {"data":"2022-03-17"}
 	$body = $request->getBody();
@@ -311,22 +324,37 @@ $app->put('/students/{id}', function (Request $request, Response $response, arra
 //TODO: valutare la correttezza dell'input (dividere il controllo in varie funzioni)
 $app->put('/tests/{id}', function (Request $request, Response $response, array $args) use ($pdo) {
 	/* {"valutazione": "1", "tipologia": "teoria", "stato": "accettato", "note": null} */
-	//TODO: se non è l'ultima prova ritorna un errore
 	$body = $request->getBody();
 	$value = json_decode($body);
-	$sql = 'UPDATE prova SET valutazione = :valutazione, tipologia = :tipologia, 
-        	stato = :stato, note = :note, id_esame = :id_esame WHERE id = :id';
+	//se non è l'ultima prova ritorna un errore
+	$sql = 'select id, if(id = :id, true, false) as result from prova
+where id_studente = (select id_studente from prova where id = :id)
+order by id desc limit 1';
 	$stmt = $pdo->prepare($sql);
-	$stmt->execute([
-		'id' => $args['id'],
-		'valutazione' => $value->{'valutazione'},
-		'tipologia' => $value->{'tipologia'},
-		'stato' => $value->{'stato'},
-		'note' => $value->{'note'},
-	]);
+	$stmt->execute(['id' => $args['id']]);
 	$result = $stmt->fetchAll();
-	$response->getBody()->write(json_encode($result));
-	$response->withHeader('Content-Type', 'application/json');
+	if ($result[0]['result'] == true) { //è l'ultima prova effettuata dallo studente
+		echo "true";
+	}
+	var_dump($result[0]['result']);
+
+	//if (is_correct($body)) {
+		$sql = 'UPDATE prova SET valutazione = :valutazione, tipologia = :tipologia, 
+		          stato = :stato, note = :note WHERE id = :id';
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute([
+			'id' => $args['id'],
+			'valutazione' => $value->{'valutazione'},
+			'tipologia' => $value->{'tipologia'},
+			'stato' => $value->{'stato'},
+			'note' => $value->{'note'},
+		]);
+		$result = $stmt->fetchAll();
+		$response->getBody()->write(json_encode($result));
+		$response->withHeader('Content-Type', 'application/json');
+	//} else {
+		//$response = $response->withStatus(428); //precondition required
+	//}
 	return $response;
 });
 
