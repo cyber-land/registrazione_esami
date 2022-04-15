@@ -30,13 +30,12 @@ const Main = () => {
     }
   }
   const [search_value, set_search_value] = useState("")  // valore che viene ricercato (matricola/cognome)
-  const [student, setStudent] = useState("")  // dati dello studente
-  const [tests, setTests] = useState([])      // lista dei ùtest riferiti allo studente
-  const [courses, setCourses] = useState([])  // lista di tutti i corsi
-  const [exams, setExams] = useState([])      // lista di tutti gli esami
+  const [student, setStudent] = useState()  // dati dello studente
+  const [tests, setTests] = useState()      // lista dei test riferiti allo studente
+  const [courses, setCourses] = useState()  // lista di tutti i corsi
+  const [exams, setExams] = useState()      // lista di tutti gli esami
   const [token, setToken] = useState(JSON.parse(localStorage.getItem("jwt"))) // JWT (json web token)
-  const server_addr = "http://localhost/RegistrazioneEsami/registrazione_esami/server_uni"
-  // const server_addr = "http://localhost:8080/server_uni"
+  const server_addr = "http://localhost:8080/server_uni"
 
   function retrieveExams() {
     fetch(`${server_addr}/exams`, {
@@ -44,7 +43,7 @@ const Main = () => {
     }).then((res) => {
       if (res.ok) { return res.json(); }
       else sendErrorMessage(res.status)
-    }).then(body => setExams(body))
+    }).then(body => setExams(body)).catch(error => console.log('error:', error))
   }
 
   function retrieveCourses() {
@@ -53,32 +52,26 @@ const Main = () => {
     }).then((res) => {
       if (res.ok) { return res.json(); }
       else sendErrorMessage(res.status)
-    }).then(body => setCourses(body))
+    }).then(body => setCourses(body)).catch(error => console.log('error:', error))
   }
 
   function retrieveStudent() {
     const str = search_value.replace('/\s/g', '') //rimozione degli spazi bianchi
     if (str) {
-      fetch(`${server_addr}/students/${str}`, {
+      fetch(`${server_addr}/students/search=${str}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       }).then((res) => {
         if (res.ok) { return res.json(); }
         else sendErrorMessage(res.status)
       }).then(body => {
-        setStudent(body[0])
-      })
+        if (body && body[0]) {
+          setStudent(body[0].student)
+          setTests(body[0].tests)
+        }
+      }).catch(error => console.log('error:', error))
     } else {
       setStudent("")
     }
-  }
-
-  function retrieveTestsOfStudent(student_id) {
-    fetch(`${server_addr}/students/${student_id}/tests`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    }).then((res) => {
-      if (res.ok) { return res.json(); }
-      else sendErrorMessage(res.status)
-    }).then(body => setTests(body))
   }
 
   // TODO: sessiontimeout.js chiudere la sessione dopo tot tempo di inattività
@@ -87,29 +80,33 @@ const Main = () => {
     localStorage.setItem("jwt", JSON.stringify(token))
     if (token) {
       const jwtparsed = parseJwt(token)
-      //rigenerazione automatica del token quando la sua vita supera la metà
-      const timer = setTimeout(() => {
-        fetch(`${server_addr}/renew_token`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }).then((res) => {
-          if (res.ok) { return res.json(); }
-          else sendErrorMessage("impossible renew the token")
-        }).then(body => { if (body) setToken(body.jwt) })
-      }, (jwtparsed.exp - jwtparsed.iat)/2 * 1000);
-      console.log(timer)
-      retrieveCourses()
-      retrieveExams()
-      retrieveStudent()
-      return () => clearTimeout(timer);
+      const expirationTime = jwtparsed.exp
+      const currentTime = Math.round(Date.now() / 1000) //seconds since epoch
+      if (currentTime < expirationTime) { //token valid
+        //rigenerazione automatica del token quando la sua vita supera la metà
+        const timer = setTimeout(() => {
+          fetch(`${server_addr}/renew_token`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }).then((res) => {
+            if (res.ok) { return res.json(); }
+            else sendErrorMessage("impossible renew the token")
+          }).then(body => { 
+            if (body) setToken(body.jwt) 
+          }).catch(error => console.log('error:', error))
+        }, (jwtparsed.exp - jwtparsed.iat)/2 * 1000);
+        if (!courses) retrieveCourses()
+        if (!exams) retrieveExams()
+        //retrieveStudent()
+        return () => clearTimeout(timer);
+      } else { // token expired
+        setToken("")
+      }
     }
   }, [token])
   
   //quando la matricola cambia viene chiesto al server se esiste uno studente che abbia quella matricola
   //TODO: limitare il numero di chiamate utilizzando un timer
   useEffect(() => { retrieveStudent() }, [search_value])
-
-  //se si trova una corrisponedenza nel db, vengono recuperati i test che riguardano lo studente
-  useEffect(() => { if (student) retrieveTestsOfStudent(student.id) }, [student])
 
   //funzione chiamata quando si vuole mostrare un errore all'utente
   //TODO: limitare (con un timer) il numero di messaggi inviati

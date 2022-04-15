@@ -1,5 +1,7 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, useRef, useEffect } from 'react'
 import { Ctx } from './context.jsx'
+import { jsPDF } from "jspdf"
+import autoTable from 'jspdf-autotable'
 
 const ExamsTable = (params) => {
   const { exams } = useContext(Ctx)
@@ -25,8 +27,8 @@ const ExamsTable = (params) => {
 
 const Exam = (params) => {
   const { server_addr, token, sendErrorMessage } = useContext(Ctx)
-  let exam = params.exam
-  let i = 0
+  const exam = params.exam
+  const [pdf_data, set_pdf_data] = useState("")
   return (
     <tr className="hover">
       <th>{/*{exam.id}*/}</th>
@@ -43,10 +45,25 @@ const Exam = (params) => {
             if (res.ok) { return res.json(); }
             else sendErrorMessage("impossible retrieve pdf data")
           }).then((body) => {
-            console.log(body)
+            set_pdf_data(body)
           }).catch(error => console.log(error))
         }}>
-          <img src="https://img.icons8.com/ios/25/000000/download--v1.png"/>
+          <button onClick={
+            useEffect(() => {
+              if (pdf_data) {
+                const pdf = new jsPDF("portrait", "pt", "a4");
+                pdf.text("esame del: " + exam.data.split(" ")[0]+" (id: "+exam.id+')', 40, 30); //inserire la data dell'esame
+                autoTable(pdf, {
+                  head: [['matricola', 'cognome', 'nome', 'teoria', 'programmazione', 'totale', 'note']],
+                  body: pdf_data,
+                })
+                pdf.save("report.pdf");
+
+              }
+            }, [pdf_data])
+          } type="button">
+              <img src="https://img.icons8.com/ios/25/000000/download--v1.png"/>
+            </button>
         </a>
       </td>
     </tr>

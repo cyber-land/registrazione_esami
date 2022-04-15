@@ -5,20 +5,20 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Slim\Exception\HttpNotFoundException;
 use Tuupola\Middleware\JwtAuthentication;
-use Firebase\JWT\JWT;
 
 require __DIR__ . '/vendor/autoload.php';
+require 'functions.php';
+
 $app = AppFactory::create();
 
-//recupera da __DIR__ uno slice successivo ad 'htdocs'
-define('BASE_PATH', '/RegistrazioneEsami/registrazione_esami/server_uni');
-// define('BASE_PATH', substr(__DIR__, strpos(__DIR__, "htdocs")+6));
-
-$app->setBasePath(BASE_PATH); //"/RegistrazioneEsami/registrazione_esami/server_uni"
-
-//impostare manualmente il file, siccome non può venire inserito nello storico di git
+//recupero dei parametri di configurazione
 $data = file_get_contents('config.json');
 $obj = json_decode($data, true);
+
+define('BASE_PATH', $obj['LOCAL_PATH']);
+
+$app->setBasePath(BASE_PATH);
+
 $pdo = new PDO(
 	"mysql:{$obj['DB_HOST']}={$obj['DM_ADDR']};{$obj['DM_NAME']}={$obj['DB_NAME']}",
 	$obj['DB_USER']
@@ -39,7 +39,7 @@ $app->options('/{routes:.+}', function ($request, $response, $args) {
 $app->add(function ($request, $handler) {
 	$response = $handler->handle($request);
 	return $response
-		->withHeader('Access-Control-Allow-Origin', 'http://mysite')
+		->withHeader('Access-Control-Allow-Origin', '*')
 		->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
 		->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 });
@@ -48,46 +48,10 @@ $app->add(function ($request, $handler) {
 $app->add(
 	new JwtAuthentication([
 		"path" => BASE_PATH,
-		"ignore" => [BASE_PATH."/auth"],
+		"ignore" => [BASE_PATH."/auth", BASE_PATH."/status"],
 		"secret" => JWT_SECRET
 	])
 );
-
-function getToken($data): string
-{
-	$secretKey = JWT_SECRET;
-	$tokenId = "";
-	try {
-		$tokenId = base64_encode(random_bytes(16));
-	} catch (Exception $e) {}
-	$serverName = 'server_name.com';
-	$issuedAt = new DateTimeImmutable();
-	$expire = $issuedAt->modify('+2 minutes')->getTimestamp();
-	$data = [
-		'iat' => $issuedAt->getTimestamp(),    // Issued at: time when the token was generated
-		'jti' => $tokenId,                     // Json Token Id: a unique identifier for the token
-		'iss' => $serverName,                  // Issuer
-		'nbf' => $issuedAt->getTimestamp(),    // Not before
-		'exp' => $expire,                      // Expire
-		'data' => $data
-	];
-	return JWT::encode($data, $secretKey, 'HS512');
-}
-
-//TODO: muovere in un altro file
-function authentication(string $username, string $password): ?string
-{
-	global $pdo;
-	$sql = 'SELECT id, password FROM professore WHERE username = :username';
-	$stmt = $pdo->prepare($sql);
-	$stmt->execute(['username' => $username]);
-	$user = $stmt->fetch();
-	// controlla se l'utente esiste e se la password corrisponde all'hash
-	if ($user === false || !password_verify($password, $user['password']))
-		return null;
-	$data = array('id' => $user['id'], 'username' => $username);
-	return getToken($data);
-}
 
 //ritorna un nuovo token con gli stessi dati del token usato per chiamare questo metodo
 $app->get('/renew_token', function (Request $request, Response $response, array $args) {
@@ -97,26 +61,35 @@ $app->get('/renew_token', function (Request $request, Response $response, array 
 	return $response->withHeader('Content-Type', 'application/json');
 });
 
-//shadow /students/{id}
-$app->get('/students/{pattern}', function (Request $request, Response $response, array $args) use ($pdo) {
-	$pattern = $args['pattern']; //TODO: controllo di validità
-	$sql = "select studente.id, nome, cognome, matricola, id_corso, voto, descrizione as corso 
-					from studente, corso where corso.id = studente.id_corso and 
-					(matricola like :pattern or cognome like :pattern or nome like :pattern) limit 1";
-	$stmt = $pdo->prepare($sql);
-	$stmt->execute(['pattern' => "%".$pattern.'%']);
-	$result = $stmt->fetchAll();
-	$response->getBody()->write(json_encode($result));
+$app->get('/status', function (Request $request, Response $response, array $args) {
+	$response->getBody()->write(json_encode(status()));
 	return $response->withHeader('Content-Type', 'application/json');
 });
 
-$app->get('/students/{id}/tests', function (Request $request, Response $response, array $args) use ($pdo) {
-	$sql = 'select * from prova, esame where id_esame = esame.id 
-						and id_studente = :id order by esame.data desc, prova.id desc';
+//ritorna gli studenti che possiedono dati che rispettano il pattern cercato
+//e ritorna anche i loro test associati
+//TODO: matricola uguale, non simile
+$app->get('/students/search={pattern}', function (Request $request, Response $response, array $args) use ($pdo) {
+	$pattern = "";
+	try {$pattern = $args['pattern'];} //TODO: controllo di validità
+	catch (Exception $e) {}
+	$sql = "select studente.id, nome, cognome, matricola, id_corso, voto, descrizione as corso 
+					from studente, corso where corso.id = studente.id_corso and 
+					(matricola like :pattern or cognome like :pattern or nome like :pattern)";
 	$stmt = $pdo->prepare($sql);
-	$stmt->execute(['id' => $args['id']]);
-	$result = $stmt->fetchAll();
-	$response->getBody()->write(json_encode($result));
+	$stmt->execute(['pattern' => "%".$pattern.'%']);
+	$students = $stmt->fetchAll();
+	$res = array();
+	foreach ($students as $row) {
+		$sql = 'select * from prova, esame where id_esame = esame.id 
+						and id_studente = :id order by esame.data desc, prova.id desc';
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute(['id' => $row['id']]);
+		$result = $stmt->fetchAll();
+		array_push($res, array('student' => $row, 'tests' => $result));
+		//$res[$row['id']] = array($row, $result);
+	}
+	$response->getBody()->write(json_encode($res));
 	return $response->withHeader('Content-Type', 'application/json');
 });
 
@@ -129,14 +102,14 @@ $app->get('/{table}', function (Request $request, Response $response, array $arg
 		$stmt->execute();
 		$result = $stmt->fetchAll();
 		$response->getBody()->write(json_encode($result));
-	} elseif ($table == 'teachers') {
+	} elseif ($table == 'teachers') { //non espone gli hash delle password
 		$sql = 'select id, nome, cognome, username from professore order by id desc';
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute();
 		$result = $stmt->fetchAll();
 		$response->getBody()->write(json_encode($result));
 	} else {
-		$response->getBody()->write(json_encode("invalid table name: " . $table));
+		$response->getBody()->write(json_encode(array("invalid table" => $table)));
 	}
 	return $response->withHeader('Content-Type', 'application/json');
 });
@@ -157,7 +130,7 @@ $app->get('/{table}/{id}', function (Request $request, Response $response, array
 		$result = $stmt->fetchAll();
 		$response->getBody()->write(json_encode($result));
 	} else {
-		$response->getBody()->write(json_encode("invalid table name: " . $table));
+		$response->getBody()->write(json_encode(array("invalid table" => $table)));
 	}
 	return $response->withHeader('Content-Type', 'application/json');
 });
@@ -176,34 +149,23 @@ $app->get('/exams/{id}/pdf', function (Request $request, Response $response, $ar
 	//dato l'esame in questione, recuperare tutte le prove collegate e gli studenti collegati ad esse
 	//il risultato finale è una mappa (dati dello studente : voti delle sue prove)
 
-	$sql = "select matricola,
-					SUBSTRING(cognome, 1, 3) as cognome,
-					SUBSTRING(nome, 1, 3) as nome,
-					GROUP_CONCAT(
-							if (
-							    tipologia = 'teoria', 
-							    if(valutazione<8,'INSUFF', valutazione), 
-							    null
-							)
-					    ORDER BY prova.id
-					) as teoria,
-					GROUP_CONCAT(
-					    if (
-					        tipologia = 'programmazione', 
-					        if(valutazione<8,'INSUFF', valutazione), 
-					        null
-					  	)
-					    ORDER BY prova.id
-					) as programmazione,
-					sum(valutazione) as totale,
-					null as note
-					from esame, prova, studente
-					where esame.id = :id
-					and esame.id = prova.id_esame
-					and studente.id = prova.id_studente
-					and stato = 'accettato'
-					group by studente.id
-					order by studente.id";
+	$sql = "select matricola, SUBSTRING(cognome, 1, 3) as cognome, SUBSTRING(nome, 1, 3) as nome,
+if (tipologia = 'teoria', if(valutazione<8,'INSUFF', valutazione), '') as teoria,
+if (tipologia = 'programmazione', if(valutazione<8,'INSUFF', valutazione), '') as programmazione,
+if (tipologia = 'programmazione' && valutazione >= 8,
+    (select sum(valutazione) from prova
+    where id_studente = studente.id
+    and id_esame = prova.id_esame
+    and stato = 'accettato'
+    and tipologia != 'orale'),
+    (select valutazione from prova
+    where id_studente = studente.id
+    and tipologia = 'teoria' and stato = 'accettato'
+    order by id limit 1)
+) as totale,
+'' as note from esame, prova, studente where esame.id = :id and esame.id = prova.id_esame
+and studente.id = prova.id_studente and stato = 'accettato' and tipologia != 'orale'
+group by studente.id order by studente.id;";
 	$stmt = $pdo->prepare($sql);
 	$stmt->execute(['id' => $args['id']]);
 	$result = $stmt->fetchAll();
@@ -251,99 +213,13 @@ $app->post('/students', function (Request $request, Response $response, $args) u
 	return $response;
 });
 
-//TODO: controllare che l'esame sia in data uguale o successiva rispetto all'ultima prova *fatta*
-//TODO: controllare che non ci sia un altro esame uguale (id_studente, id_esame). viene già controllato?
-function is_correct($test): bool {
-	global $pdo;
-
-	//le note da controllare
-	//controllare che lo stato sia tra le 3 possibilità
-	$possibili_stati = array('accettato', 'rifiutato', 'ritirato');
-	if (!in_array($test->{'stato'}, $possibili_stati)) {
-		return false;
-	}
-
-	//controllare se id_studente, id_esame ed id_professore sono validi
-	$sql = 'select * from studente where id = :id_studente';
-	$stmt = $pdo->prepare($sql);
-	$stmt->execute(['id_studente' => $test->{'id_studente'}]);
-	$res = $stmt->fetchAll();
-	if (!$res) return false;
-	$sql = 'select * from professore where id = :id_professore';
-	$stmt = $pdo->prepare($sql);
-	$stmt->execute(['id_professore' => $test->{'id_professore'}]);
-	$res = $stmt->fetchAll();
-	if (!$res) return false;
-	$sql = 'select * from esame where id = :id_esame';
-	$stmt = $pdo->prepare($sql);
-	$stmt->execute(['id_esame' => $test->{'id_esame'}]);
-	$res = $stmt->fetchAll();
-	if (!$res) return false;
-
-	//controllo sulla correttezza della tipologia e valutazione
-	$tipologia = $test->{'tipologia'};
-	$valutazione = $test->{'valutazione'};
-	if ($tipologia == 'teoria' && $valutazione <= 15) {
-		$sql = 'select * from prova where id_studente = :id_studente and valutazione >= 8 
-            and stato = "accettato" order by id desc limit 1';
-		$stmt = $pdo->prepare($sql);
-		$stmt->execute(['id_studente' => $test->{'id_studente'}]);
-		$result = $stmt->fetchAll();
-		if (!$result || $result[0]['tipologia'] == 'teoria') {
-				return true;
-		}
-		return false;
-	} elseif ($tipologia == 'programmazione' && $valutazione <= 17) {
-		//se l'ultima priva valida è orale ritorna false
-		$sql = 'select * from prova where id_studente = :id_studente and stato = "accettato" order by id desc';
-		$stmt = $pdo->prepare($sql);
-		$stmt->execute(['id_studente' => $test->{'id_studente'}]);
-		$result = $stmt->fetchAll();
-		if (!$result || $result[0]['tipologia'] == 'orale') {
-			return false;
-		}
-		//controlla che l'ultima prova valida sia teoria
-		$sql = 'select * from prova where id_studente = :id_studente and valutazione >= 8 
-            and stato = "accettato" order by id desc';
-		$stmt = $pdo->prepare($sql);
-		$stmt->execute(['id_studente' => $test->{'id_studente'}]);
-		$result = $stmt->fetchAll();
-		if (!$result) return false;
-		if ($result[0]['tipologia'] == 'teoria') {
-			return true;
-		}
-		//controlla se l'ultima valida è programmazione, controllando se ce ne sono più di una
-		$sql = 'select * from prova where id_studente = :id_studente and valutazione >= 8 and stato = "accettato" 
-        		and tipologia = "programmazione" order by id desc';
-		$stmt = $pdo->prepare($sql);
-		$stmt->execute(['id_studente' => $test->{'id_studente'}]);
-		$result = $stmt->fetchAll();
-		if (sizeof($result) < 2) return true;
-		return false;
-	} elseif ($tipologia == 'orale' && $valutazione >= -3 && $valutazione <= 3) {
-		//TODO: non controllare lo stato?
-		$sql = 'select * from prova where id_studente = :id_studente and stato = "accettato" order by id desc limit 1';
-		$stmt = $pdo->prepare($sql);
-		$stmt->execute(['id_studente' => $test->{'id_studente'}]);
-		$result = $stmt->fetchAll();
-		if ($result[0]['tipologia'] == 'programmazione') {
-			return true;
-		}
-		return false;
-	} else {
-		//tipologia impossibile
-		return false;
-	}
-	return false;
-}
-
 $app->post('/tests', function (Request $request, Response $response, array $args) use ($pdo) {
 	/* {"valutazione": "1", "tipologia": "teoria", "stato": "accettato", "note": null,
 	"id_studente": "2", "id_esame": "1", "id_professore": "1"} */
 	$body = $request->getBody();
 	$value = json_decode($body);
 	$is_correct = is_correct($value);
-	if ($is_correct) {
+	if ($is_correct[0]) {
 		$sql = 'INSERT INTO prova (valutazione, tipologia, stato, note, id_studente, id_esame, id_professore) 
 						VALUES (:valutazione, :tipologia, :stato, :note, :id_studente, :id_esame, :id_professore)';
 		$stmt = $pdo->prepare($sql);
