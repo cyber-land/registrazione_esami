@@ -20,8 +20,6 @@ const ExamForm = (params) => {
             <input type="time" className="input input-bordered input-secondary bg-base-100 w-full max-w-xs" value={time} onChange={e => { setTime(e.target.value) }}/>
             <div className="card-actions justify-end">
               <button className="btn btn-accent" onClick={e => {
-                console.log(date)
-                console.log(time)
                 //TODO: generare errore in caso la data sia già presente nel db
                 //TODO: implementare l'inserimento dell'ora, lato server
                 e.preventDefault()
