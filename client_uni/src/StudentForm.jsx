@@ -12,6 +12,30 @@ const StudentForm = (params) => {
   if (!courses) return (<></>)
   return (
     <>
+      <form style={{display: "flex"}}>
+        <input type="text" placeholder="matricola" className="input input-bordered w-full max-w-xs" 
+          value={matricola} onChange={e => { setMatricola(e.target.value) }}/>
+
+        <input type="text" placeholder="cognome" className="input input-bordered w-full max-w-xs"
+          value={cognome} onChange={e => { setCognome(e.target.value) }} />
+
+        <input type="text" placeholder="nome" className="input input-bordered w-full max-w-xs"
+          value={nome} onChange={e => { setNome(e.target.value) }} />
+
+        <select className="select select-bordered w-full max-w-xs" value={corso} onChange={e => { setCorso(e.target.value) }}>
+            {courses.map((course, pos) => <option key={pos}> {course.descrizione} </option>)}  
+        </select>
+        <button className="btn btn-active btn-primary">crea</button>
+      </form>
+
+
+
+
+
+
+
+
+
       <form className="footer p-10 text-base-context">
         <div className="footer-title">
           <input className="" type="text" placeholder="matricola"

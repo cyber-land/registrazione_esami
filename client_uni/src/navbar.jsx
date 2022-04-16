@@ -27,23 +27,19 @@ const Navbar = (params) => {
         </ul>
       </div>
       <div className="navbar-end">
-        <label htmlFor="my-modal-3" className="btn btn-ghost btn-circle modal-button">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-        </label>
-        <input type="checkbox" id="my-modal-3" className="modal-toggle" />
-        <div className="modal modal-bottom sm:modal-middle">
-          <div className="modal-box relative">
-            <label htmlFor="my-modal-3" className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-            <div className="form-control">
-              <input type="text" style={{marginTop: "30px", marginBottom: "30px"}} placeholder="Cerca studente..." className="input input-bordered" value={search_value} onChange={e => {
+        <div className="form-control">
+          <div className="input-group">
+            <input type="text" placeholder="Cerca studente..." className="input input-bordered" value={search_value} onChange={e => {
               //TODO: premendo enter riavvia tutto senza motivo
               //TODO: può capitare che vada fuori sync quando vengono cancellati i valori (ctrl+a, return)
               //TODO: mostra un cascade menu con tutte i possiibli risultati (se maggiori di uno)
               // dopo aver selezionato un valore dalla lista viene fatta la sua ricerca
               set_search_value(e.target.value)
-              }}>
-              </input>
-            </div>
+            }}>
+            </input>
+            <button className="btn btn-square">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            </button>
           </div>
         </div>
       </div>

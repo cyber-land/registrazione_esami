@@ -36,7 +36,7 @@ const Main = () => {
   const [exams, setExams] = useState()      // lista di tutti gli esami
   const [token, setToken] = useState(JSON.parse(localStorage.getItem("jwt"))) // JWT (json web token)
   const [token_parsed, set_token_parsed] = useState()
-  const server_addr = "http://localhost:8080/server_uni"
+  const server_addr = "http://localhost/progettiPHP/registrazione_esami/server_uni"
   const ref_token_parsed = useRef()         // riferimento al token decodificato
   ref_token_parsed.current = token_parsed
 
