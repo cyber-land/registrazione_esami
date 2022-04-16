@@ -5,7 +5,7 @@ import { Ctx } from './context.jsx'
 const Navbar = (params) => {
   const { search_value, set_search_value, setToken } = useContext(Ctx)
   return (
-    <div className="navbar bg-base-100">
+    <div className="navbar bg-base-100" style={{marginTop: "10px", marginBottom: "10px"}}>
       <div className='navbar-start'>
         <div className="dropdown">
           <label tabIndex="0" className="btn btn-ghost btn-circle lg:hidden">

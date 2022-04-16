@@ -12,82 +12,54 @@ const StudentForm = (params) => {
   if (!courses) return (<></>)
   return (
     <>
-      <form style={{display: "flex"}}>
-        <input type="text" placeholder="matricola" className="input input-bordered w-full max-w-xs" 
-          value={matricola} onChange={e => { setMatricola(e.target.value) }}/>
-
-        <input type="text" placeholder="cognome" className="input input-bordered w-full max-w-xs"
-          value={cognome} onChange={e => { setCognome(e.target.value) }} />
-
-        <input type="text" placeholder="nome" className="input input-bordered w-full max-w-xs"
-          value={nome} onChange={e => { setNome(e.target.value) }} />
-
-        <select className="select select-bordered w-full max-w-xs" value={corso} onChange={e => { setCorso(e.target.value) }}>
-            {courses.map((course, pos) => <option key={pos}> {course.descrizione} </option>)}  
-        </select>
-        <button className="btn btn-active btn-primary">crea</button>
-      </form>
-
-
-
-
-
-
-
-
-
-      <form className="footer p-10 text-base-context">
-        <div className="footer-title">
-          <input className="" type="text" placeholder="matricola"
-            value={matricola} onChange={e => { setMatricola(e.target.value) }} ></input>
+      <section style={{display: "flex", flexDirection: "row", justifyContent: "space-evenly", margin: "8%", flexWrap: "wrap"}}>
+        <div className="mockup-window border bg-secondary card w-96 shadow-xl">
+          <form className="flex justify-center px-4 py-16 bg-base-100 card-body" style={{gap: "10px"}}>
+            <input type="text" placeholder="matricola" className="input input-bordered input-primary bg-base-100 w-full max-w-xs" 
+              value={matricola} onChange={e => { setMatricola(e.target.value) }}/>
+            <input type="text" placeholder="cognome" className="input input-bordered input-secondary bg-base-100 w-full max-w-xs"
+              value={cognome} onChange={e => { setCognome(e.target.value) }} />
+            <input type="text" placeholder="nome" className="input input-bordered input-primary w-full max-w-xs"
+              value={nome} onChange={e => { setNome(e.target.value) }} />
+            <select className="select select-bordered select-secondary w-full max-w-xs" value={corso} onChange={e => { setCorso(e.target.value) }}>
+                {courses.map((course, pos) => <option key={pos}> {course.descrizione} </option>)}  
+            </select>
+            <div className="card-actions justify-end">
+              <button className="btn btn-active btn-accent" onClick={e => {
+                //TODO: generare errore in caso la matricola sia già presente nel db
+                //TODO: gestire se riceve una risposta che indica errore (controllare status code)
+                e.preventDefault()
+                if (!matricola || !nome || !cognome || !corso) {
+                  sendErrorMessage("invalid fields")
+                } else {
+                  fetch(`${server_addr}/students`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                      matricola: matricola,
+                      nome: nome,
+                      cognome: cognome,
+                      voto: null,
+                      corso: corso
+                    })
+                  }).then((res) => {
+                    if (res.ok) { return res.json(); }
+                    else sendErrorMessage("conflict")
+                  }).then(() => {
+                    retrieveStudent()
+                  }).catch(error => console.log(error))
+                  setMatricola("")
+                  setCognome("")
+                  setNome("")
+                }
+              }}>Crea</button>
+            </div>
+          </form>
         </div>
-        <div className="footer-title">
-          <input className="" type="text" placeholder="cognome"
-            value={cognome} onChange={e => { setCognome(e.target.value) }} ></input>
-        </div>
-        <div className="footer-title">
-          <input className="" type="text" placeholder="nome"
-            value={nome} onChange={e => { setNome(e.target.value) }} ></input>
-        </div>
-        <div className="footer-title">
-          <select className="" value={corso} onChange={e => { setCorso(e.target.value) }} >
-            {courses.map((course, pos) => <option key={pos}> {course.descrizione} </option>)}
-          </select>
-        </div>
-        <div className="">
-          <button className="" onClick={e => {
-            //TODO: generare errore in caso la matricola sia già presente nel db
-            //TODO: gestire se riceve una risposta che indica errore (controllare status code)
-            e.preventDefault()
-            if (!matricola || !nome || !cognome || !corso) {
-              sendErrorMessage("invalid fields")
-            } else {
-              fetch(`${server_addr}/students`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                  matricola: matricola,
-                  nome: nome,
-                  cognome: cognome,
-                  voto: null,
-                  corso: corso
-                })
-              }).then((res) => {
-                if (res.ok) { return res.json(); }
-                else sendErrorMessage("conflict")
-              }).then(() => {
-                retrieveStudent()
-              }).catch(error => console.log(error))
-              setMatricola("")
-              setCognome("")
-              setNome("")
-            }
-          }}>Create</button>
-        </div>
-      </form>
+      </section>
     </>
   );
 }

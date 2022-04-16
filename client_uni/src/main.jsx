@@ -36,7 +36,7 @@ const Main = () => {
   const [exams, setExams] = useState()      // lista di tutti gli esami
   const [token, setToken] = useState(JSON.parse(localStorage.getItem("jwt"))) // JWT (json web token)
   const [token_parsed, set_token_parsed] = useState()
-  const server_addr = "http://localhost/progettiPHP/registrazione_esami/server_uni"
+  const server_addr = "http://localhost/RegistrazioneEsami/registrazione_esami/server_uni"
   const ref_token_parsed = useRef()         // riferimento al token decodificato
   ref_token_parsed.current = token_parsed
 
@@ -81,9 +81,7 @@ const Main = () => {
   // WARNING: può dare problemi durante gli hot-update
   useEffect(() => {
     localStorage.setItem("jwt", JSON.stringify(token))
-    if (token) {
       set_token_parsed(parseJwt(token))
-    }
   }, [token])
 
   useEffect(() => {
@@ -171,8 +169,8 @@ const Main = () => {
               </Route>
               <Route path="/exams" element={
                 <>
-                  <ExamForm />
                   <ExamsTable />
+                  <ExamForm />
                 </>
               } />
               <Route path="/addstudent" element={
