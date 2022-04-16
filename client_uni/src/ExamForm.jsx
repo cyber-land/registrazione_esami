@@ -16,10 +16,12 @@ const ExamForm = (params) => {
       <label htmlFor="my-modal-4" className="modal cursor-pointer" style={{display: "flex", flexDirection: "row", justifyContent: "space-evenly", flexWrap: "wrap"}}>
         <label className="modal-box relative mockup-window border bg-secondary card w-96 shadow-xl" style={{padding: "24px 0 0 0"}} htmlFor="">
           <form className="flex justify-center px-4 py-16 bg-base-100 card-body" style={{gap: "10px"}}>
-            <input type="date" className="input input-bordered input-primary bg-base-100 w-full max-w-xs" />
-            <input type="time" className="input input-bordered input-secondary bg-base-100 w-full max-w-xs" />
+            <input type="date" className="input input-bordered input-primary bg-base-100 w-full max-w-xs" value={date} onChange={e => { setDate(e.target.value) }}/>
+            <input type="time" className="input input-bordered input-secondary bg-base-100 w-full max-w-xs" value={time} onChange={e => { setTime(e.target.value) }}/>
             <div className="card-actions justify-end">
               <button className="btn btn-accent" onClick={e => {
+                console.log(date)
+                console.log(time)
                 //TODO: generare errore in caso la data sia già presente nel db
                 //TODO: implementare l'inserimento dell'ora, lato server
                 e.preventDefault()

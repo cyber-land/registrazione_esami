@@ -264,11 +264,8 @@ $app->post('/exams', function (Request $request, Response $response, array $args
 	$stmt = $pdo->prepare($sql);
 	$stmt->execute(['data' => $value->{'data'}]);
 	$stmt->fetchAll();
-	$sql = 'SELECT id FROM esame WHERE data = :data';
-	$stmt = $pdo->prepare($sql);
-	$stmt->execute(['data' => $value->{'data'}]);
-	$result_id = $stmt->fetchAll();
-	$response->getBody()->write(json_encode($result_id[0]));
+
+	$response->getBody()->write(json_encode(""));
 	return $response->withHeader('Content-Type', 'application/json'); //created;
 });
 
