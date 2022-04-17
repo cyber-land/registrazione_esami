@@ -120,6 +120,28 @@ const Main = () => {
     const msg = message
   }
 
+  function viewSearchedStudent() {
+    if (student) {
+      console.log("SEARCH")
+      return (
+        <>
+          {/* IDEA MODAL - NOT WORKING 
+          <input type="checkbox" id="my-modal-4" className="modal-toggle" />
+          <label htmlFor="my-modal-4" className="modal cursor-pointer" style={{display: "flex", flexDirection: "row", justifyContent: "space-evenly", flexWrap: "wrap"}}>
+            <label className="modal-box relative mockup-window border bg-secondary card w-96 shadow-xl" style={{padding: "24px 0 0 0"}} htmlFor="">
+              <form className="flex justify-center px-4 py-16 bg-base-100 card-body" style={{gap: "10px"}}>
+                <div className="card-actions justify-end">
+                  <button className="btn btn-accent">Add</button> 
+                </div>
+              </form>
+            </label>
+          </label> 
+          */}
+        </>
+      )
+    }
+  }
+
   const Hero = () => {
     if (!token) return (<></>)
     /* se viene trovata una corrispondenza (tra la matricola inserita e quelle nel db)
@@ -149,7 +171,7 @@ const Main = () => {
   return (
     <>
       <Ctx.Provider value={{
-        search_value/*navbar*/, set_search_value/*navbar*/,
+        search_value/*navbar*/, set_search_value/*navbar*/, viewSearchedStudent/*navbar*/,
         courses/*studentform*/, 
         tests/*testtable*/, setTests/*testform*/,
         student/*testform, studentform*/, retrieveStudent/*StudentForm*/, 
@@ -165,6 +187,7 @@ const Main = () => {
             <Routes>
               <Route path="*" element={
                   <Home />
+                  
               }>
               </Route>
               <Route path="/exams" element={
@@ -174,8 +197,8 @@ const Main = () => {
                 </>
               } />
               <Route path="/addstudent" element={
-                // <Hero student={student} />
                 <StudentForm />
+                /* <Hero student={student} /> */
               } />
             </Routes>
           </> : <Login />}
@@ -191,8 +214,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 )
-
-/* IDEAS:
-* (❌ searchbar) (✅ search icon → click → apre modal con searchbar) e (⚠️ dati studente)
-* 
-*/
