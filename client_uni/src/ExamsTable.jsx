@@ -55,7 +55,7 @@ const Exam = (params) => {
                   const pdf = new jsPDF("portrait", "pt", "a4");
                   pdf.text("esame del: " + exam.data.split(" ")[0]+" (id: "+exam.id+')', 40, 30); //inserire la data dell'esame
                   autoTable(pdf, {
-                    head: [['matricola', 'cognome', 'nome', 'teoria', 'programmazione', 'totale', 'note']],
+                    head: [['matricola', 'cognome', 'nome', 'teoria', 'progr.', 'totale', 'note']],
                     body: pdf_data,
                   })
                   pdf.save("report.pdf");

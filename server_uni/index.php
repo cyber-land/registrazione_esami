@@ -76,8 +76,7 @@ $app->get('/students/search={pattern}', function (Request $request, Response $re
 	try {$pattern = $args['pattern'];}
 	catch (Exception $e) {}
 	$sql = "select studente.id, nome, cognome, matricola, id_corso, voto, descrizione as corso 
-					from studente, corso where corso.id = studente.id_corso and 
-					(cognome like :pattern or nome like :pattern) limit 5";
+					from studente, corso where corso.id = studente.id_corso and cognome like :pattern";
 	//se la ricerca viene fatta per matricola (numero) allora controlla se ci sia una matricola uguale
 	//altrimenti controlla se cognome e nome inizino con il pattern
 	if (is_numeric($pattern)) {
@@ -195,6 +194,7 @@ $app->post('/students', function (Request $request, Response $response, $args) u
 	$stmt->execute(['matricola' => $value->{'matricola'}]);
 	$matricola = $stmt->fetchAll();
 	if ($matricola) { // se esiste (uno) studente con la stessa matricola
+		$response->getbody()->write(json_encode(array("errore" => "studente con la stessa matricola già esistente")));
 		$response = $response->withStatus(409); // conflict
 	} else { //se non esiste nessuno studente con la stessa matricola
 		//recupera l'id del corso dal nome
