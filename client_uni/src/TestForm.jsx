@@ -8,9 +8,9 @@ const TestForm = (params) => {
   const [stato, setStato] = useState("accettato");
   const [note, setNote] = useState("");
   const [esame, setEsame] = useState("");
-  const voto_studente = student.voto ? student.voto+"/30" : "<void>"
+  const voto_studente = (student && student.voto) ? student.voto+"/30" : "<void>"
   useEffect(() => { if (exams && exams[0]) setEsame(exams[0].id) }, [exams])
-  if (!exams) return (<></>)
+  if (!exams || !student) return (<>nessuno studente corrisponde ai criteri di ricerca</>)
   return (
     <>
       <br></br>

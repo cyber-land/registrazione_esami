@@ -49,6 +49,7 @@ $app->add(
 	new JwtAuthentication([
 		"path" => BASE_PATH,
 		"ignore" => [BASE_PATH."/auth", BASE_PATH."/status"],
+		"secure" => false,
 		"secret" => JWT_SECRET
 	])
 );
@@ -75,32 +76,41 @@ $app->get('/students/search={pattern}', function (Request $request, Response $re
 	$pattern = "";
 	try {$pattern = $args['pattern'];}
 	catch (Exception $e) {}
-	$sql = "select studente.id, nome, cognome, matricola, id_corso, voto, descrizione as corso 
-					from studente, corso where corso.id = studente.id_corso and 
-					(cognome like :pattern or nome like :pattern) limit 5";
+	$pattern = trim($pattern); //Removes whitespace or other predefined characters from both sides of a string
 	//se la ricerca viene fatta per matricola (numero) allora controlla se ci sia una matricola uguale
 	//altrimenti controlla se cognome e nome inizino con il pattern
-	if (is_numeric($pattern)) {
+	if (is_numeric($pattern) || is_numeric(str_replace(' ', '', $pattern))) {
 		$sql = "select studente.id, nome, cognome, matricola, id_corso, voto, descrizione as corso 
 					from studente, corso where corso.id = studente.id_corso and matricola = :pattern";
-	}
-	$stmt = $pdo->prepare($sql);
-	if (is_numeric($pattern)) {
-		$stmt->execute(['pattern' => $pattern]);
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute(['pattern' => str_replace(' ', '', $pattern)]);
 	} else {
-		$stmt->execute(['pattern' => $pattern.'%']);
+		$pattern = preg_replace('!\s+!', ' ', $pattern); //replacing multiple spaces with a single space
+		$pattern = str_replace(' ', ' ^', $pattern); //add a carat (^) after every space
+		$pattern = '^'.$pattern; //add a carat (^) at the beginning of the string
+		$regex = str_replace(' ', '|', $pattern); //replace every space with a vertical pipe
+		//choose the operator to use
+		$operator = 'or';
+		if (substr_count($regex, '^')>1 /*count character in a string*/ || strlen($regex)<4) {
+			$operator = 'and';
+		}
+		$sql = "select studente.id, nome, cognome, matricola, id_corso, voto, descrizione as corso from studente, corso 
+						where corso.id = studente.id_corso and (cognome regexp :regex {$operator} nome regexp :regex) limit 25";
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute(['regex' => $regex]);
 	}
+	//recupera la lista degli studenti
 	$students = $stmt->fetchAll();
-	$res = array();
-	foreach ($students as $row) {
+	$result = array();
+	//recupera le prove collegate a ogni studente e le allega al risultato da restituire
+	foreach ($students as $student) {
 		$sql = 'select * from prova, esame where id_esame = esame.id and id_studente = :id order by esame.data desc, prova.id desc';
 		$stmt = $pdo->prepare($sql);
-		$stmt->execute(['id' => $row['id']]);
-		$result = $stmt->fetchAll();
-		array_push($res, array('student' => $row, 'tests' => $result));
-		//$res[$row['id']] = array($row, $result);
+		$stmt->execute(['id' => $student['id']]);
+		$tests = $stmt->fetchAll();
+		array_push($result, array('student' => $student, 'tests' => $tests));
 	}
-	$response->getBody()->write(json_encode($res));
+	$response->getBody()->write(json_encode($result));
 	return $response->withHeader('Content-Type', 'application/json');
 });
 
@@ -195,6 +205,7 @@ $app->post('/students', function (Request $request, Response $response, $args) u
 	$stmt->execute(['matricola' => $value->{'matricola'}]);
 	$matricola = $stmt->fetchAll();
 	if ($matricola) { // se esiste (uno) studente con la stessa matricola
+		$response->getbody()->write(json_encode(array("errore" => "studente con la stessa matricola già esistente")));
 		$response = $response->withStatus(409); // conflict
 	} else { //se non esiste nessuno studente con la stessa matricola
 		//recupera l'id del corso dal nome
