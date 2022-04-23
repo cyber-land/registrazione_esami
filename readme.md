@@ -30,25 +30,31 @@ Nello storico degli esami, oltre ai punteggi delle prove, è necessario tenere t
 
 ### **_Client_**
 
-Eseguire (in *client_uni*)
+Eseguire (in _client\_uni_)
 
 ```bash
 npm i
 ```
 
-Modificare il `server_addr` in `main.jsx`
+Creare il file **config.json** nella cartella **assets** con questa struttura
+
+```json
+{
+  "server_addr": "http://192.168.205.32:8080/server_uni"
+}
+```
 
 ### **_Server_**
 
-Impostare il deployment della cartella *server_uni*
+Impostare il deployment della cartella **server_uni**
 
-eseguire (in *server_uni*)
+eseguire (in **server_uni**)
 
 ```bash
 composer install
 ```
 
-Creare il file *config.json* nella cartella *server_uni* affinchè sia simile a
+Creare il file **config.json** nella cartella **server_uni** affinchè sia simile a
 
 ```json
 {
@@ -68,7 +74,7 @@ Creare il file *config.json* nella cartella *server_uni* affinchè sia simile a
 
 Avviare i processi di Xampp (mysql database, apache web server)
 
-Eseguire (in *client_uni*)
+Eseguire (in **client_uni**)
 
 ```bash
 npm run dev
