@@ -8,7 +8,7 @@ const ExamForm = (params) => {
   return (
     <>
       <div style={{display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
-        <label htmlFor="my-modal-4" className="btn btn-circle btn-accent btn-lg" style={{position: "absolute", marginTop: "40px", marginRight: "40px"}}>
+        <label htmlFor="my-modal-4" className="btn btn-circle btn-accent btn-lg modal-button" style={{position: "absolute", marginTop: "40px", marginRight: "40px"}}>
           <img src="../assets/icons/plus_24.png" width={"50%"}/>
         </label>
       </div>
