@@ -101,7 +101,8 @@ $app->get('/students/search={pattern}', function (Request $request, Response $re
 	$result = array();
 	//recupera le prove collegate a ogni studente e le allega al risultato da restituire
 	foreach ($students as $student) {
-		$sql = 'select * from prova, esame where id_esame = esame.id and id_studente = :id order by esame.data desc, prova.id desc';
+		$sql = 'select *, prova.id as id_prova from prova, esame where id_esame = esame.id 
+            and id_studente = :id order by esame.data desc, prova.id desc';
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute(['id' => $student['id']]);
 		$tests = $stmt->fetchAll();
