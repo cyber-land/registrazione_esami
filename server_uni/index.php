@@ -49,6 +49,7 @@ $app->add(
 	new JwtAuthentication([
 		"path" => BASE_PATH,
 		"ignore" => [BASE_PATH."/auth", BASE_PATH."/status"],
+		"secure" => false,
 		"secret" => JWT_SECRET
 	])
 );

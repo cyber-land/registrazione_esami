@@ -38,7 +38,7 @@ const Main = () => {
   const [token_parsed, set_token_parsed] = useState()
   const [timer_search, set_timer_search] = useState()      // timer usato per limitare il numero di fetch eseguite
   const [timer_token, set_timer_token] = useState()
-  const server_addr = "http://localhost:8080/server_uni"
+  const server_addr = "http://192.168.205.32:8080/server_uni"
   const ref_token_parsed = useRef()         // riferimento al token decodificato
   ref_token_parsed.current = token_parsed
 
@@ -62,15 +62,13 @@ const Main = () => {
 
   //esegue una ricerca (dopo che l'utente ha smesso di digitare) in base al valore nella searchbar
   function retrieveStudent() {
-    //ricerca su più keywork?
-    const str = search_value.split(" ").join("") //rimozione degli spazi bianchi
     if (timer_search) {
       clearTimeout(timer_search)
       set_timer_search(null)
     }
-    if (str) {
+    if (search_value) {
       set_timer_search(setTimeout(() => {
-        fetch(`${server_addr}/students/search=${str}`, {
+        fetch(`${server_addr}/students/search=${search_value}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }).then((res) => {
           if (res.ok) { return res.json(); }
@@ -89,6 +87,11 @@ const Main = () => {
       setStudent("")
       setTests("")
     }
+  }
+
+  //funzione chiamata quando si vuole mostrare un errore all'utente
+  function sendErrorMessage(message) {
+    console.log(message)
   }
 
   // TODO: sessiontimeout.js chiudere la sessione dopo tot tempo di inattività
@@ -115,10 +118,9 @@ const Main = () => {
             if (res.ok) { return res.json(); }
             else sendErrorMessage("impossible renew the token")
           }).then(body => {
-            console.log("body:", body)
             if (body) setToken(body.jwt)
           }).catch(error => console.log('error:', error))
-        }, (token_parsed.exp - token_parsed.iat) / 8 * 1000));
+        }, (token_parsed.exp - token_parsed.iat) / 2 * 1000));
         if (!courses) retrieveCourses()
         if (!exams) retrieveExams()
       } else { // token expired
@@ -130,13 +132,12 @@ const Main = () => {
   //quando la matricola cambia viene chiesto al server se esiste uno studente che abbia quella matricola
   useEffect(() => { retrieveStudent() }, [search_value])
 
-  useEffect(() => { console.log(token) }, [token])
-
-  //funzione chiamata quando si vuole mostrare un errore all'utente
-  //TODO: limitare (con un timer) il numero di messaggi inviati
-  function sendErrorMessage(message) {
-    console.log(message)
-  }
+  useEffect(() => {
+    fetch(`${server_addr}/status`, {
+    }).then((res) => {
+      if (!res.ok) sendErrorMessage("the server is offline or misconfigurated")
+    }).catch(() => sendErrorMessage("the server is offline or misconfigurated"))
+  }, [])
 
   //utilizzo del context per condividere alcune variabili e funzioni con gli altri componenti
   //se non ha un token (valido), redirigere tutto sul login
@@ -170,7 +171,6 @@ const Main = () => {
                 </>
               } />
               <Route path="/addstudent" element={
-                // <Hero student={student} />
                 <StudentForm />
               } />
               <Route path="/search" element={
