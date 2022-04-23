@@ -1,16 +1,20 @@
 <?php
+
 use Firebase\JWT\JWT;
 
-function status() {
-	return array('status'=>'online');
+function status()
+{
+	return array('status' => 'online');
 }
+
 function getToken($data): string
 {
 	$secretKey = JWT_SECRET;
 	$tokenId = "";
 	try {
 		$tokenId = base64_encode(random_bytes(16));
-	} catch (Exception $e) {}
+	} catch (Exception $e) {
+	}
 	$serverName = 'server_name.com';
 	$issuedAt = new DateTimeImmutable();
 	$expire = $issuedAt->modify('+2 minutes')->getTimestamp();
@@ -28,18 +32,19 @@ function getToken($data): string
 function authentication(string $username, string $password): ?string
 {
 	global $pdo;
-	$sql = 'SELECT id, cognome, password FROM professore WHERE username = :username';
+	$sql = 'SELECT * FROM professore WHERE username = :username';
 	$stmt = $pdo->prepare($sql);
 	$stmt->execute(['username' => $username]);
 	$user = $stmt->fetch();
 	// controlla se l'utente esiste e se la password corrisponde all'hash
 	if ($user === false || !password_verify($password, $user['password']))
 		return null;
-	$data = array('id' => $user['id'], 'surname' => $user['cognome'], 'username' => $username);
+	$data = array('id' => $user['id'], 'surname' => $user['cognome'], 'name' => $user['nome'], 'username' => $username);
 	return getToken($data);
 }
 
-function is_correct($test): array {
+function is_correct($test): array
+{
 	global $pdo;
 	//le note non sono da controllare
 

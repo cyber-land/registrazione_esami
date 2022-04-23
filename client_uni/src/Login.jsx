@@ -1,14 +1,14 @@
 import { useContext, useEffect, useState } from 'react'
 import { Ctx } from './context.jsx'
 
-const Login = (params) => {
+const Login = () => {
   const { server_addr, setToken, sendErrorMessage } = useContext(Ctx)
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
 
   return (
     <>
-      <section style={{display: "flex", margin: "12%", justifyContent: "center", alignItems: "center"}}>
+      <section style={{ display: "flex", margin: "12%", justifyContent: "center", alignItems: "center" }}>
         <div className="mockup-window border bg-secondary card w-96 shadow-xl">
           <form className="flex justify-center px-4 py-16 bg-base-100 card-body">
             <div>
@@ -33,19 +33,21 @@ const Login = (params) => {
                   })
                 }).then((res) => {
                   if (res.ok) { return res.json(); }
-                  else sendErrorMessage("wrong credentials")
+                  else {
+                    sendErrorMessage("wrong credentials")
+                    setUsername("")
+                    setPassword("")
+                  }
                 }).then(body => {
                   if (body) {
                     setToken(body.jwt)
                   }
-                  //setUsername("")
-                  //setPassword("")
                 }).catch(error => console.log('error:', error))
               }}>send</button>
             </div>
           </form>
         </div>
-      </section>  
+      </section>
     </>
   )
 }

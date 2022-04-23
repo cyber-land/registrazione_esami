@@ -16,7 +16,7 @@ const ExamsTable = (params) => {
             <th>TIME</th>
             <th>EXPORT</th>
           </tr>
-        </thead>  
+        </thead>
         <tbody>
           {exams.map((exam, pos) => <Exam key={pos} exam={exam} />)}
         </tbody>
@@ -53,7 +53,7 @@ const Exam = (params) => {
               useEffect(() => {
                 if (pdf_data) {
                   const pdf = new jsPDF("portrait", "pt", "a4");
-                  pdf.text("esame del: " + exam.data.split(" ")[0]+" (id: "+exam.id+')', 40, 30); //inserire la data dell'esame
+                  pdf.text("esame del: " + exam.data.split(" ")[0] + " (id: " + exam.id + ')', 40, 30); //inserire la data dell'esame
                   autoTable(pdf, {
                     head: [['matricola', 'cognome', 'nome', 'teoria', 'progr.', 'totale', 'note']],
                     body: pdf_data,
@@ -63,8 +63,8 @@ const Exam = (params) => {
                 }
               }, [pdf_data])
             } type="button">
-                <img src="../assets/icons/download_24.png"/>
-              </button>
+              <img src="../assets/icons/download_24.png" />
+            </button>
           </a>
         </td>
       </tr>

@@ -7,28 +7,26 @@ const ExamForm = (params) => {
   const [time, setTime] = useState("")
   return (
     <>
-      <div style={{display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
-        <label htmlFor="my-modal-4" className="btn btn-circle btn-accent btn-lg modal-button" style={{position: "absolute", marginTop: "40px", marginRight: "40px"}}>
-          <img src="../assets/icons/plus_24.png" width={"50%"}/>
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center" }}>
+        <label htmlFor="my-modal-4" className="btn btn-circle btn-accent btn-lg modal-button" style={{ position: "absolute", marginTop: "40px", marginRight: "40px" }}>
+          <img src="../assets/icons/plus_24.png" width={"50%"} />
         </label>
       </div>
       <input type="checkbox" id="my-modal-4" className="modal-toggle" />
-      <label htmlFor="my-modal-4" className="modal cursor-pointer" style={{display: "flex", flexDirection: "row", justifyContent: "space-evenly", flexWrap: "wrap"}}>
-        <label className="modal-box relative mockup-window border bg-secondary card w-96 shadow-xl" style={{padding: "24px 0 0 0"}} htmlFor="">
-          <form className="flex justify-center px-4 py-16 bg-base-100 card-body" style={{gap: "10px"}}>
-            <input type="date" className="input input-bordered input-primary bg-base-100 w-full max-w-xs" value={date} onChange={e => { setDate(e.target.value) }}/>
-            <input type="time" className="input input-bordered input-secondary bg-base-100 w-full max-w-xs" value={time} onChange={e => { setTime(e.target.value) }}/>
+      <label htmlFor="my-modal-4" className="modal cursor-pointer" style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly", flexWrap: "wrap" }}>
+        <label className="modal-box relative mockup-window border bg-secondary card w-96 shadow-xl" style={{ padding: "24px 0 0 0" }} htmlFor="">
+          <form className="flex justify-center px-4 py-16 bg-base-100 card-body" style={{ gap: "10px" }}>
+            <input type="date" className="input input-bordered input-primary bg-base-100 w-full max-w-xs" value={date} onChange={e => { setDate(e.target.value) }} />
+            <input type="time" className="input input-bordered input-secondary bg-base-100 w-full max-w-xs" value={time} onChange={e => { setTime(e.target.value) }} />
             <div className="card-actions justify-end">
               <button className="btn btn-accent" onClick={e => {
-                //TODO: generare errore in caso la data sia già presente nel db
-                //TODO: implementare l'inserimento dell'ora, lato server
                 e.preventDefault()
                 if (!date) {
                   sendErrorMessage("invalid fields")
                 } else {
                   let data = date
                   if (time)
-                    data+=' '+time
+                    data += ' ' + time
                   fetch(`${server_addr}/exams`, {
                     method: "POST",
                     headers: {
@@ -46,7 +44,7 @@ const ExamForm = (params) => {
                   }).catch(error => console.log(error))
                   setDate("")
                 }
-              }}>Add</button> 
+              }}>Add</button>
             </div>
           </form>
         </label>
@@ -56,47 +54,3 @@ const ExamForm = (params) => {
 }
 
 export default ExamForm;
-
-      //     <form className="footer p-10 text-base-context">
-      //     <div className="footer-title"></div>
-      //     <div className="footer-title">
-      //       <input className="" type="date" placeholder="date"
-      //         value={date} onChange={e => { setDate(e.target.value) }} ></input>
-      //     </div>
-      //     <div className="footer-title"></div>
-      //     <div className="footer-title">
-      //     <input className="" type="time" placeholder="date"
-      //       value={time} onChange={e => { setTime(e.target.value) }} ></input>
-      //   </div>
-      //   <div className="footer-title"></div>
-      //   <div className="footer-title">
-      //     <button className="" onClick={e => {
-      //       //TODO: generare errore in caso la data sia già presente nel db
-      //       //TODO: implementare l'inserimento dell'ora, lato server
-      //       e.preventDefault()
-      //       if (!date) {
-      //         sendErrorMessage("invalid fields")
-      //       } else {
-      //         let data = date
-      //         if (time)
-      //           data+=' '+time
-      //         fetch(`${server_addr}/exams`, {
-      //           method: "POST",
-      //           headers: {
-      //             "Content-Type": "application/json",
-      //             'Authorization': `Bearer ${token}`
-      //           },
-      //           body: JSON.stringify({
-      //             data: data
-      //           })
-      //         }).then((res) => {
-      //           if (res.ok) { return res.json(); }
-      //           else sendErrorMessage("invalid fields")
-      //         }).then(body => {
-      //           retrieveExams()
-      //         }).catch(error => console.log(error))
-      //         setDate("")
-      //       }
-      //     }}>Send</button>
-      //   </div>
-      // </form>

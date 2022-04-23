@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { Ctx } from './context.jsx'
 
-const TestsTable = (params) => {
+const TestsTable = () => {
   const { tests } = useContext(Ctx)
   if (!tests) return (<></>)
   return (
@@ -28,13 +28,15 @@ const TestsTable = (params) => {
 function Test(params) {
   const pos = params.pos
   const test = params.test
-  
+
   const Modify = () => {
-  //TODO: quando preme il bottone viene aperto un modal che contiene un form per la modifica della prova 
+    //TODO: quando preme il bottone viene aperto un modal che contiene un form per la modifica della prova 
     if (pos == 0) {
       return (
         <>
-          <button>modify</button>
+          <button onClick={() => {
+            //aprire un modal
+          }}>modify</button>
         </>
       )
     } else return (<>-</>)

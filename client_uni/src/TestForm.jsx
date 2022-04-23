@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Ctx } from './context.jsx'
 
-const TestForm = (params) => {
+const TestForm = () => {
   const { student, setTests, exams, server_addr, token, sendErrorMessage, ref_token_parsed } = useContext(Ctx)
   const [valutazione, setValutazione] = useState("");
   const [tipologia, setTipologia] = useState("teoria");
   const [stato, setStato] = useState("accettato");
   const [note, setNote] = useState("");
   const [esame, setEsame] = useState("");
-  const voto_studente = (student && student.voto) ? student.voto+"/30" : "<void>"
+  const voto_studente = (student && student.voto) ? student.voto + "/30" : "<void>"
   useEffect(() => { if (exams && exams[0]) setEsame(exams[0].id) }, [exams])
   if (!exams || !student) return (<>nessuno studente corrisponde ai criteri di ricerca</>)
   return (

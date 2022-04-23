@@ -48,7 +48,7 @@ $app->add(function ($request, $handler) {
 $app->add(
 	new JwtAuthentication([
 		"path" => BASE_PATH,
-		"ignore" => [BASE_PATH."/auth", BASE_PATH."/status"],
+		"ignore" => [BASE_PATH . "/auth", BASE_PATH . "/status"],
 		"secure" => false,
 		"secret" => JWT_SECRET
 	])
@@ -57,12 +57,7 @@ $app->add(
 //ritorna un nuovo token con gli stessi dati del token usato per chiamare questo metodo
 $app->get('/renew_token', function (Request $request, Response $response, array $args) {
 	$jwt = $request->getAttribute("token"); //recupera il token già decodificato
-	$data = array(
-		'id' => $jwt['data']->{'id'},
-		'surname' => $jwt['data']->{'surname'},
-		'username' => $jwt['data']->{'username'}
-	);
-	$response->getBody()->write(json_encode(array('jwt' => getToken($data))));
+	$response->getBody()->write(json_encode(array('jwt' => getToken($jwt['data']))));
 	return $response->withHeader('Content-Type', 'application/json');
 });
 
@@ -74,8 +69,10 @@ $app->get('/status', function (Request $request, Response $response, array $args
 //ritorna gli studenti (e i loro test associati) che possiedono dati che rispettano il pattern cercato
 $app->get('/students/search={pattern}', function (Request $request, Response $response, array $args) use ($pdo) {
 	$pattern = "";
-	try {$pattern = $args['pattern'];}
-	catch (Exception $e) {}
+	try {
+		$pattern = $args['pattern'];
+	} catch (Exception $e) {
+	}
 	$pattern = trim($pattern); //Removes whitespace or other predefined characters from both sides of a string
 	//se la ricerca viene fatta per matricola (numero) allora controlla se ci sia una matricola uguale
 	//altrimenti controlla se cognome e nome inizino con il pattern
@@ -87,11 +84,11 @@ $app->get('/students/search={pattern}', function (Request $request, Response $re
 	} else {
 		$pattern = preg_replace('!\s+!', ' ', $pattern); //replacing multiple spaces with a single space
 		$pattern = str_replace(' ', ' ^', $pattern); //add a carat (^) after every space
-		$pattern = '^'.$pattern; //add a carat (^) at the beginning of the string
+		$pattern = '^' . $pattern; //add a carat (^) at the beginning of the string
 		$regex = str_replace(' ', '|', $pattern); //replace every space with a vertical pipe
 		//choose the operator to use
 		$operator = 'or';
-		if (substr_count($regex, '^')>1 /*count character in a string*/ || strlen($regex)<4) {
+		if (substr_count($regex, '^') > 1 /*count character in a string*/ || strlen($regex) < 4) {
 			$operator = 'and';
 		}
 		$sql = "select studente.id, nome, cognome, matricola, id_corso, voto, descrizione as corso from studente, corso 
@@ -347,21 +344,21 @@ order by id desc limit 1';
 	var_dump($result[0]['result']);
 
 	//if (is_correct($body)) {
-		$sql = 'UPDATE prova SET valutazione = :valutazione, tipologia = :tipologia, 
+	$sql = 'UPDATE prova SET valutazione = :valutazione, tipologia = :tipologia, 
 		          stato = :stato, note = :note WHERE id = :id';
-		$stmt = $pdo->prepare($sql);
-		$stmt->execute([
-			'id' => $args['id'],
-			'valutazione' => $value->{'valutazione'},
-			'tipologia' => $value->{'tipologia'},
-			'stato' => $value->{'stato'},
-			'note' => $value->{'note'},
-		]);
-		$result = $stmt->fetchAll();
-		$response->getBody()->write(json_encode($result));
-		$response->withHeader('Content-Type', 'application/json');
+	$stmt = $pdo->prepare($sql);
+	$stmt->execute([
+		'id' => $args['id'],
+		'valutazione' => $value->{'valutazione'},
+		'tipologia' => $value->{'tipologia'},
+		'stato' => $value->{'stato'},
+		'note' => $value->{'note'},
+	]);
+	$result = $stmt->fetchAll();
+	$response->getBody()->write(json_encode($result));
+	$response->withHeader('Content-Type', 'application/json');
 	//} else {
-		//$response = $response->withStatus(428); //precondition required
+	//$response = $response->withStatus(428); //precondition required
 	//}
 	return $response;
 });

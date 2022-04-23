@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom'
-import { BrowserRouter, Routes, Route, Link, Router } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Navbar from './navbar.jsx'
 import ExamForm from './ExamForm.jsx'
 import ExamsTable from './ExamsTable.jsx'
@@ -14,9 +14,10 @@ import config from '../assets/config.json'
 import './index.css'
 // import { themeChange } from 'theme-change';
 
+import './index.css'
 const Main = () => {
 
-  //IDEA: change theme
+  //TODO: change theme
   /*
   useEffect(() => {
     themeChange(false)
@@ -31,17 +32,17 @@ const Main = () => {
     }
   }
 
-  const [search_value, set_search_value] = useState("")  // valore che viene ricercato (matricola/cognome)
-  const [student, setStudent] = useState()  // dati dello studente
-  const [tests, setTests] = useState()      // lista dei test riferiti allo studente
-  const [courses, setCourses] = useState()  // lista di tutti i corsi
-  const [exams, setExams] = useState()      // lista di tutti gli esami
+  const [search_value, set_search_value] = useState("") // valore che viene ricercato (matricola/cognome)
+  const [student, setStudent] = useState() // dati dello studente
+  const [tests, setTests] = useState() // lista dei test riferiti allo studente
+  const [courses, setCourses] = useState() // lista di tutti i corsi
+  const [exams, setExams] = useState() // lista di tutti gli esami
   const [token, setToken] = useState(JSON.parse(localStorage.getItem("jwt"))) // JWT (json web token)
   const [token_parsed, set_token_parsed] = useState()
-  const [timer_search, set_timer_search] = useState()      // timer usato per limitare il numero di fetch eseguite
-  const [timer_token, set_timer_token] = useState()
+  const [timer_search, set_timer_search] = useState() // timer usato per limitare il numero di fetch eseguite
+  const [timer_token, set_timer_token] = useState() // timer usato per la richiesta di un nuovo token
   const server_addr = config.server_addr;
-  const ref_token_parsed = useRef()         // riferimento al token decodificato
+  const ref_token_parsed = useRef() // riferimento al token decodificato
   ref_token_parsed.current = token_parsed
 
   function retrieveExams() {
@@ -110,7 +111,7 @@ const Main = () => {
       if (currentTime < expirationTime) { //token valid
         if (timer_token) {
           clearTimeout(timer_token)
-          //set_timer_token(null) //???
+          set_timer_token(null)
         }
         //rigenerazione automatica del token quando la sua vita supera la metà
         set_timer_token(setTimeout(() => {
@@ -144,7 +145,6 @@ const Main = () => {
   //utilizzo del context per condividere alcune variabili e funzioni con gli altri componenti
   //se non ha un token (valido), redirigere tutto sul login
   //TODO: separare in tanti context, ognuno per ogni area di influenza
-  //TODO: eliminare il routing, utilizzando al suo posto i modal
   return (
     <>
       <Ctx.Provider value={{
@@ -195,8 +195,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 )
-
-/* IDEAS:
-* (❌ searchbar) (✅ search icon → click → apre modal con searchbar) e (⚠️ dati studente)
-* 
-*/
