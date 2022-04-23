@@ -10,6 +10,7 @@ import TestForm from './TestForm.jsx'
 import TestsTable from './TestsTable.jsx'
 import Home from './Home.jsx';
 import { Ctx } from './context.jsx'
+import config from '../assets/config.json'
 import './index.css'
 // import { themeChange } from 'theme-change';
 
@@ -29,6 +30,7 @@ const Main = () => {
       return null;
     }
   }
+
   const [search_value, set_search_value] = useState("")  // valore che viene ricercato (matricola/cognome)
   const [student, setStudent] = useState()  // dati dello studente
   const [tests, setTests] = useState()      // lista dei test riferiti allo studente
@@ -38,7 +40,7 @@ const Main = () => {
   const [token_parsed, set_token_parsed] = useState()
   const [timer_search, set_timer_search] = useState()      // timer usato per limitare il numero di fetch eseguite
   const [timer_token, set_timer_token] = useState()
-  const server_addr = "http://192.168.205.32:8080/server_uni"
+  const server_addr = config.server_addr;
   const ref_token_parsed = useRef()         // riferimento al token decodificato
   ref_token_parsed.current = token_parsed
 
@@ -175,8 +177,8 @@ const Main = () => {
               } />
               <Route path="/search" element={
                 <>
-                <TestForm />
-                <TestsTable />
+                  <TestForm />
+                  <TestsTable />
                 </>
               } />
             </Routes>
