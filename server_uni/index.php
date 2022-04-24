@@ -342,7 +342,7 @@ order by id desc limit 1';
 	if ($result[0]['result'] == true) { //è l'ultima prova effettuata dallo studente
 		echo "true";
 	}
-	var_dump($result[0]['result']);
+	//var_dump($result[0]['result']);
 
 	//if (is_correct($body)) {
 	$sql = 'UPDATE prova SET valutazione = :valutazione, tipologia = :tipologia, 
