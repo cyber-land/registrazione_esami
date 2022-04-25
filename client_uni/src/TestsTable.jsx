@@ -59,23 +59,23 @@ function Test(params) {
   if (is_valid) { //disegnare in verde
     return (
       <tr>
-        <td>{test.valutazione}</td>
-        <td>{test.tipologia}</td>
-        <td>{test.stato}</td>
-        <td>{params.test.note ? params.test.note : '-'}</td>
-        <td>{test.data.split(" ")[0]}</td>{/*toglie l'orario, mostrando solo la data*/}
-        <td><Modify /></td>
+        <td className="bg-success">{test.valutazione}</td>
+        <td className="bg-success">{test.tipologia}</td>
+        <td className="bg-success">{test.stato}</td>
+        <td className="bg-success">{params.test.note ? params.test.note : '-'}</td>
+        <td className="bg-success">{test.data.split(" ")[0]}</td>{/*toglie l'orario, mostrando solo la data*/}
+        <td className="bg-success"><Modify /></td>
       </tr>
     )
   } else { //disegnare in rosso
     return (
       <tr>
-        <td>{test.valutazione}</td>
-        <td>{test.tipologia}</td>
-        <td>{test.stato}</td>
-        <td>{params.test.note ? params.test.note : '-'}</td>
-        <td>{test.data.split(" ")[0]}</td>{/*toglie l'orario, mostrando solo la data*/}
-        <td><Modify /></td>
+        <td className="bg-error">{test.valutazione}</td>
+        <td className="bg-error">{test.tipologia}</td>
+        <td className="bg-error">{test.stato}</td>
+        <td className="bg-error">{params.test.note ? params.test.note : '-'}</td>
+        <td className="bg-error">{test.data.split(" ")[0]}</td>{/*toglie l'orario, mostrando solo la data*/}
+        <td className="bg-error"><Modify /></td>
       </tr>
     )
   }

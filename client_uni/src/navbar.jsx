@@ -17,7 +17,7 @@ const Navbar = () => {
             <li><Link to="/" onClick={() => { setToken("") }}>Logout</Link></li>
           </ul>
         </div>
-        <Link to="/">Logo</Link>
+        <Link to="/" className="font-bold text-2xl">HOME</Link>
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal p-0">

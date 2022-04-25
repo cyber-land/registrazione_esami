@@ -11,18 +11,11 @@ import TestsTable from './TestsTable.jsx'
 import Home from './Home.jsx';
 import { Ctx } from './context.jsx'
 import config from '../assets/config.json'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 import './index.css'
-// import { themeChange } from 'theme-change';
 
-import './index.css'
 const Main = () => {
-
-  //TODO: change theme
-  /*
-  useEffect(() => {
-    themeChange(false)
-  }, [])
-  */
 
   function parseJwt(token) {
     try {
@@ -95,6 +88,37 @@ const Main = () => {
   //funzione chiamata quando si vuole mostrare un errore all'utente
   function sendErrorMessage(message) {
     console.log(message)
+    alert(message)
+
+  //   const Error = withReactContent(Swal)
+  //   Error.fire({
+  //     title: {message},
+  //     toast: true,
+  //     position: 'top',
+  //     timer: 3000,
+  //     timerProgressBar: true,
+  //     didOpen: (Error) => {
+  //       Error.addEventListener('mouseenter', Swal.stopTimer)
+  //       Error.addEventListener('mouseleave', Swal.resumeTimer)
+  //     }
+  //   })
+
+    // const Toast = Swal.mixin({
+    //   toast: true,
+    //   positions: 'top-center',
+    //   showConfirmButton: false,
+    //   timer: false,
+    //   timerProgressBar: true,
+    //   didOpen: (toast) => {
+    //     toast.addEventListener('mouseenter', Swal.stopTimer)
+    //     toast.addEventListener('mouseleave', Swal.resumeTimer)
+    //   }
+    // })
+
+    // Toast.fire({
+    //   icon: 'error',
+    //   title: {message}
+    // })
   }
 
   // TODO: sessiontimeout.js chiudere la sessione dopo tot tempo di inattività

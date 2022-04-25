@@ -10,19 +10,14 @@ const TestForm = () => {
   const [esame, setEsame] = useState("");
   const voto_studente = (student && student.voto) ? student.voto + "/30" : "<void>"
   useEffect(() => { if (exams && exams[0]) setEsame(exams[0].id) }, [exams])
-  if (!exams || !student) return (<>nessuno studente corrisponde ai criteri di ricerca</>)
+  if (!exams || !student) return (
+    <div style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", height: "300px"}}>
+      <h1 className="text-3xl">nessuno studente corrisponde ai criteri di ricerca</h1>
+    </div>
+  )
   return (
     <>
       <br></br>
-      {/* <h3 className="uk-child-width-1-6@s" uk-grid="true"> */}
-        {/* <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.matricola}</div> */}
-        {/* <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.cognome}</div> */}
-        {/* <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.nome}</div> */}
-        {/* <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.corso}</div> */}
-        {/* <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{voto_studente}</div> */}
-        {/* <button className="uk-button uk-button-default" onClick={e => { }} >modify</button> */}
-      {/* </h3> */}
-
       <div className="overlow-x-auto">
         <table className="table w-full">
           <thead>
