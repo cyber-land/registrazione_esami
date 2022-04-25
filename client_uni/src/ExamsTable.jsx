@@ -12,9 +12,9 @@ const ExamsTable = (params) => {
         <thead>
           <tr>
             <th></th>
-            <th>DATE</th>
-            <th>TIME</th>
-            <th>EXPORT</th>
+            <th>DATA</th>
+            <th>ORA</th>
+            <th>ESPORTA</th>
           </tr>
         </thead>
         <tbody>

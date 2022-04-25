@@ -15,16 +15,16 @@ const TestsTable = () => {
   if (!programmazione_valida) programmazione_valida={id_prova: null}
   if (!orale_valido) orale_valido={id_prova: null}
   return (
-    <>
-      <table className="uk-table uk-table-divider">
+    <div className="overlow-x-auto">
+      <table className="table w-full">
         <thead>
           <tr>
-            <th>valutazione</th>
-            <th>tipologia</th>
-            <th>stato</th>
-            <th>note</th>
-            <th>data esame</th>
-            <th>modify</th>
+            <th>VALUTAZIONE</th>
+            <th>TIPOLOGIA</th>
+            <th>STATO</th>
+            <th>NOTE</th>
+            <th>DATA ESAME</th>
+            <th>MODIFICA</th>
           </tr>
         </thead>
         <tbody>
@@ -35,7 +35,7 @@ const TestsTable = () => {
           })}
         </tbody>
       </table>
-    </>
+    </div>
   )
 }
 
