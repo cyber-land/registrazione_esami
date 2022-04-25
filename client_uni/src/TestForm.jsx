@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Ctx } from './context.jsx'
 
 const TestForm = () => {
-  const { student, setTests, exams, server_addr, token, sendErrorMessage, ref_token_parsed, courses } = useContext(Ctx)
+  const { student, retrieveStudent, exams, server_addr, token, sendErrorMessage, ref_token_parsed, courses } = useContext(Ctx)
   const [valutazione, setValutazione] = useState("");
   const [tipologia, setTipologia] = useState("teoria");
   const [stato, setStato] = useState("accettato");
@@ -20,7 +20,7 @@ const TestForm = () => {
   const ModificaStudente = () => {
     const [nome, setNome] = useState(student.nome)
     const [cognome, setCognome] = useState(student.cognome)
-    const [voto, setVoto] = useState(student.voto)
+    const [voto, setVoto] = useState(student.voto ? student.voto : "")
     const [corso, setCorso] = useState(student.corso)
     return (
       <>
@@ -41,9 +41,12 @@ const TestForm = () => {
             <div className="modal-action">
               <label htmlFor="my-modal2" className="btn" onClick={e => {
                 //e.preventDefault()
-                if (!voto || !nome || !cognome || !corso) {
+                if (!nome || !cognome || !corso) {
                   sendErrorMessage("invalid fields")
-                } else {
+                } else if (nome === student.nome && cognome === student.cognome && voto === student.voto 
+                  && corso === student.corso) {
+                  sendErrorMessage("nothing change")
+                }else {
                   fetch(`${server_addr}/students/${student.id}`, {
                     method: "PUT",
                     headers: {
@@ -58,15 +61,17 @@ const TestForm = () => {
                     })
                   }).then((res) => {
                     if (res.ok) { return res.json(); }
-                    else sendErrorMessage("conflict")
-                  }).then().catch(error => console.log(error))
+                    else sendErrorMessage("error")
+                  }).then( () => {
+                    retrieveStudent()
+                  }).catch(error => console.log(error))
                 }
               }}>Crea </label>
             </div>
           </div>
         </div>
 
-        <label htmlFor="my-modal2" className="btn modal-button">modify</label>
+        <label htmlFor="my-modal2" className="btn modal-button">update</label>
       </>
     )
   }
@@ -117,6 +122,7 @@ const TestForm = () => {
         </select>
         <button className="btn" onClick={e => {
           e.preventDefault()
+          //console.log(valutazione, tipologia, stato, esame)
           if (!valutazione || !tipologia || !stato || !esame) {
             sendErrorMessage("invalid fields")
           } else {
@@ -136,10 +142,10 @@ const TestForm = () => {
                 id_professore: ref_token_parsed.current.data.id,
               })
             }).then((res) => {
-              if (res.ok) { return res.json(); }
-              else sendErrorMessage("invalid fields")
-            }).then(() => {
-              setTests([])
+              if (res.ok) { res.json().then(() => {retrieveStudent()} )}
+              //se ritorna 'precondition request' mostra l'errore all'utente
+              if (res.status == 428) {res.json().then(data => sendErrorMessage(data['error']))}
+              //stampa il risultato di errore (forse nell'altro then)
             })
           }
         }}>create</button>

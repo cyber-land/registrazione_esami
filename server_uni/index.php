@@ -259,7 +259,7 @@ $app->post('/tests', function (Request $request, Response $response, array $args
 		$response->getBody()->write(json_encode(array('id' => $last_id_insert[0]['last_id']))); //ritorna l'id del nuovo elemento
 		$response = $response->withStatus(201); //created
 	} else {
-		$response->getBody()->write($is_correct[1]); //ritorna l'errore che ha fatto fallire l'inserimento
+		$response->getBody()->write(json_encode(array('error' => $is_correct[1]))); //ritorna l'errore che ha fatto fallire l'inserimento
 		$response = $response->withStatus(428); //precondition required
 	}
 	return $response->withHeader('Content-Type', 'application/json');
@@ -309,11 +309,12 @@ $app->put('/students/{id}', function (Request $request, Response $response, arra
 		$id_corso = $stmt->fetchAll();
 		$sql = 'UPDATE studente SET nome = :nome, cognome = :cognome, voto = :voto, id_corso = :id_corso WHERE id = :id';
 		$stmt = $pdo->prepare($sql);
+		$voto = $value->{'voto'};
 		$stmt->execute([
 			'id' => $args['id'],
 			'nome' => $value->{'nome'},
 			'cognome' => $value->{'cognome'},
-			'voto' => $value->{'voto'},
+			'voto' => ( $voto ) ? $voto : null,
 			'id_corso' => $id_corso[0]['id']
 		]);
 		$stmt->fetchAll();

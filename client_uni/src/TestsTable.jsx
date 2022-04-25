@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState } from 'react'
 import { Ctx } from './context.jsx'
 
 
@@ -6,15 +6,13 @@ import { Ctx } from './context.jsx'
 const TestsTable = () => {
   const { tests } = useContext(Ctx)
   if (!tests) return (<></>)
-  let teoria_valida = tests.find(test =>
-    (test.stato === 'accettato' && test.valutazione >= 8 && test.tipologia === 'teoria')
-  )
-  let programmazione_valida = tests.find(test =>
-    (test.stato === 'accettato' && test.valutazione >= 8 && test.tipologia === 'programmazione')
-  )
+  let teoria_valida = tests.find(test => (test.stato === 'accettato' && test.tipologia === 'teoria'))
+  if (teoria_valida.valutazione <= 8) teoria_valida = null
+  let progr_valida = tests.find(test =>(test.stato === 'accettato' && test.tipologia === 'programmazione'))
+  if (progr_valida.valutazione <= 8) progr_valida = null
   let orale_valido = tests.find(test => (test.tipologia === 'orale'))
   if (!teoria_valida) teoria_valida = { id_prova: null }
-  if (!programmazione_valida) programmazione_valida = { id_prova: null }
+  if (!progr_valida) progr_valida = { id_prova: null }
   if (!orale_valido) orale_valido = { id_prova: null }
 
   return (
@@ -33,7 +31,7 @@ const TestsTable = () => {
         <tbody>
           {tests.map((test, pos) => {
             const is_valid = (test.id_prova === teoria_valida.id_prova ||
-              test.id_prova === programmazione_valida.id_prova || test.id_prova === orale_valido.id_prova);
+              test.id_prova === progr_valida.id_prova || test.id_prova === orale_valido.id_prova);
             return <Test key={pos} test={test} pos={pos} is_valid={is_valid} />
           })}
         </tbody>
@@ -51,33 +49,32 @@ function Test(params) {
 
     //per l'ultima valutazione inserita, c'è un pulsante che apre un form per la modifica dei dati
     if (pos == 0) {
-      const { setTests, server_addr, token, sendErrorMessage } = useContext(Ctx)
+      const { server_addr, token, sendErrorMessage, retrieveStudent } = useContext(Ctx)
       const [valutazione, setValutazione] = useState(test.valutazione);
       const [tipologia, setTipologia] = useState(test.tipologia);
       const [stato, setStato] = useState(test.stato);
-      const [note, setNote] = useState(test.note);
+      const [note, setNote] = useState(test.note ? test.note : "");
 
       return (
         <>
           <input type="checkbox" id="my-modal" className="modal-toggle" />
           <div className="modal">
             <div className="modal-box">
-              <form className="flex justify-center px-4 py-16 bg-base-100 card-body" style={{ gap: "10px" }}>
-                <input className="input input-bordered input-primary bg-base-100 w-full max-w-xs" type="number" placeholder="valutazione"
+              <form className="flex justify-center px-4 py-16 bg-base-100 card-body">
+                <input className="input input-bordered input-primary bg-base-100" type="number" placeholder="valutazione"
                   value={valutazione} onChange={e => { setValutazione(e.target.value) }} ></input>
-
-                <select className="select select-bordered select-secondary w-full max-w-xs" value={tipologia} onChange={e => { setTipologia(e.target.value) }} >
+                <select className="select select-bordered select-primary" value={tipologia} onChange={e => { setTipologia(e.target.value) }} >
                   <option>teoria</option>
                   <option>programmazione</option>
                   <option>orale</option>
                 </select>
-                <select className="select select-bordered select-secondary w-full max-w-xs" value={stato} onChange={e => { setStato(e.target.value) }} >
+                <select className="select select-bordered select-primary" value={stato} onChange={e => { setStato(e.target.value) }} >
                   <option>accettato</option>
                   <option>ritirato</option>
                   <option>rifiutato</option>
                 </select>
-                <input className="input input-bordered input-primary bg-base-100 w-full max-w-xs" type="text" placeholder="note"
-                  value={note} onChange={e => { setNote(e.target.value) }} ></input>
+                <textarea className="textarea textarea-bordered textarea-primary h-24" placeholder="note"
+                  value={note} onChange={e => { setNote(e.target.value) }} />
               </form>
               <div className="modal-action">
                 <label htmlFor="my-modal" className="btn" onClick={e => {
@@ -101,7 +98,7 @@ function Test(params) {
                       if (res.ok) { return res.json(); }
                       else sendErrorMessage("invalid fields")
                     }).then(() => {
-                      setTests([])
+                      retrieveStudent()
                     })
                   }
                 }}>create </label>
@@ -109,7 +106,7 @@ function Test(params) {
             </div>
           </div>
 
-          <label htmlFor="my-modal" className="btn modal-button">open modal</label>
+          <label htmlFor="my-modal" className="btn modal-button">update</label>
         </>
       )
     } else return (<>-</>)
@@ -120,7 +117,7 @@ function Test(params) {
         <td className="bg-success">{test.valutazione}</td>
         <td className="bg-success">{test.tipologia}</td>
         <td className="bg-success">{test.stato}</td>
-        <td className="bg-success">{params.test.note ? params.test.note : '-'}</td>
+        <td className="bg-success">{test.note ? test.note : '-'}</td>
         <td className="bg-success">{test.data.split(" ")[0]}</td>{/*toglie l'orario, mostrando solo la data*/}
         <td className="bg-success"><Modify /></td>
       </tr>
@@ -131,7 +128,7 @@ function Test(params) {
         <td className="bg-error">{test.valutazione}</td>
         <td className="bg-error">{test.tipologia}</td>
         <td className="bg-error">{test.stato}</td>
-        <td className="bg-error">{params.test.note ? params.test.note : '-'}</td>
+        <td className="bg-error">{test.note ? test.note : '-'}</td>
         <td className="bg-error">{test.data.split(" ")[0]}</td>{/*toglie l'orario, mostrando solo la data*/}
         <td className="bg-error"><Modify /></td>
       </tr>

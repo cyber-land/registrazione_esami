@@ -11,8 +11,8 @@ import TestsTable from './TestsTable.jsx'
 import Home from './Home.jsx';
 import { Ctx } from './context.jsx'
 import config from '../assets/config.json'
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
+//import Swal from 'sweetalert2'
+//import withReactContent from 'sweetalert2-react-content'
 import './index.css'
 
 const Main = () => {
@@ -87,7 +87,7 @@ const Main = () => {
 
   //funzione chiamata quando si vuole mostrare un errore all'utente
   function sendErrorMessage(message) {
-    console.log(message)
+    //console.log(message)
     alert(message)
 
   //   const Error = withReactContent(Swal)

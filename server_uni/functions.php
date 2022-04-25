@@ -17,7 +17,7 @@ function getToken($data): string
 	}
 	$serverName = 'server_name.com';
 	$issuedAt = new DateTimeImmutable();
-	$expire = $issuedAt->modify('+2 minutes')->getTimestamp();
+	$expire = $issuedAt->modify('+10 minutes')->getTimestamp();
 	$data = [
 		'iat' => $issuedAt->getTimestamp(),    // Issued at: time when the token was generated
 		'jti' => $tokenId,                     // Json Token Id: a unique identifier for the token
@@ -108,14 +108,14 @@ from prova, esame where esame.id = prova.id_esame and id_studente = :id_studente
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute(['id_studente' => $test->{'id_studente'}]);
 		$result = $stmt->fetchAll();
-		var_dump($result[0]['tipologia']);
 		if ($result[0]['tipologia'] == 'programmazione') {
-			$sql = 'select * from prova where id_studente = :id_studente and stato = "accettato" and tipologia = "programmazione" order by id desc';
+			$sql = "select count(*) as quantity from prova where id_studente = :id_studente and stato = 'accettato' 
+            	and tipologia = 'programmazione' and valutazione < 8 and id > (select id from prova where id_studente = :id_studente 
+            	and stato = 'accettato' and tipologia = 'teoria' order by id desc limit 1) order by id desc;";
 			$stmt = $pdo->prepare($sql);
 			$stmt->execute(['id_studente' => $test->{'id_studente'}]);
 			$result = $stmt->fetchAll();
-			echo sizeof($result);
-			if (sizeof($result) <= 2)
+			if ($result[0]['quantity'] < 2)
 				return array(true);
 			else
 				return array(false, 'tipologia non valida (dopo due tentativi falliti della seconda prova bisogna obbligatoriamente rifare la prima)');
