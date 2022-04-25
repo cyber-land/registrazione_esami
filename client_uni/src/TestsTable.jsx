@@ -18,16 +18,16 @@ const TestsTable = () => {
   if (!orale_valido) orale_valido = { id_prova: null }
 
   return (
-    <>
-      <table className="uk-table uk-table-divider">
+    <div className="overlow-x-auto">
+      <table className="table w-full">
         <thead>
           <tr>
-            <th>valutazione</th>
-            <th>tipologia</th>
-            <th>stato</th>
-            <th>note</th>
-            <th>data esame</th>
-            <th>modify</th>
+            <th>VALUTAZIONE</th>
+            <th>TIPOLOGIA</th>
+            <th>STATO</th>
+            <th>NOTE</th>
+            <th>DATA ESAME</th>
+            <th>MODIFICA</th>
           </tr>
         </thead>
         <tbody>
@@ -38,7 +38,7 @@ const TestsTable = () => {
           })}
         </tbody>
       </table>
-    </>
+    </div>
   )
 }
 
@@ -117,23 +117,23 @@ function Test(params) {
   if (is_valid) { //disegnare in verde
     return (
       <tr>
-        <td>{test.valutazione}</td>
-        <td>{test.tipologia}</td>
-        <td>{test.stato}</td>
-        <td>{params.test.note ? params.test.note : '-'}</td>
-        <td>{test.data.split(" ")[0]}</td>{/*toglie l'orario, mostrando solo la data*/}
-        <td><Modify /></td>
+        <td className="bg-success">{test.valutazione}</td>
+        <td className="bg-success">{test.tipologia}</td>
+        <td className="bg-success">{test.stato}</td>
+        <td className="bg-success">{params.test.note ? params.test.note : '-'}</td>
+        <td className="bg-success">{test.data.split(" ")[0]}</td>{/*toglie l'orario, mostrando solo la data*/}
+        <td className="bg-success"><Modify /></td>
       </tr>
     )
   } else { //disegnare in rosso
     return (
       <tr>
-        <td>{test.valutazione}</td>
-        <td>{test.tipologia}</td>
-        <td>{test.stato}</td>
-        <td>{params.test.note ? params.test.note : '-'}</td>
-        <td>{test.data.split(" ")[0]}</td>{/*toglie l'orario, mostrando solo la data*/}
-        <td><Modify /></td>
+        <td className="bg-error">{test.valutazione}</td>
+        <td className="bg-error">{test.tipologia}</td>
+        <td className="bg-error">{test.stato}</td>
+        <td className="bg-error">{params.test.note ? params.test.note : '-'}</td>
+        <td className="bg-error">{test.data.split(" ")[0]}</td>{/*toglie l'orario, mostrando solo la data*/}
+        <td className="bg-error"><Modify /></td>
       </tr>
     )
   }
