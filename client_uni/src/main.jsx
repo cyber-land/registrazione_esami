@@ -14,15 +14,7 @@ import config from '../assets/config.json'
 import './index.css'
 // import { themeChange } from 'theme-change';
 
-import './index.css'
 const Main = () => {
-
-  //TODO: change theme
-  /*
-  useEffect(() => {
-    themeChange(false)
-  }, [])
-  */
 
   function parseJwt(token) {
     try {
@@ -94,7 +86,7 @@ const Main = () => {
 
   //funzione chiamata quando si vuole mostrare un errore all'utente
   function sendErrorMessage(message) {
-    console.log(message)
+    alert(message)
   }
 
   // TODO: sessiontimeout.js chiudere la sessione dopo tot tempo di inattività

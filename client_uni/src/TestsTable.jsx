@@ -48,11 +48,10 @@ function Test(params) {
   const is_valid = params.is_valid
 
   const Modify = () => {
-    const { student, setTests, exams, server_addr, token, sendErrorMessage, ref_token_parsed } = useContext(Ctx)
 
-    //TODO: quando preme il bottone viene aperto un modal che contiene un form per la modifica della prova 
+    //per l'ultima valutazione inserita, c'è un pulsante che apre un form per la modifica dei dati
     if (pos == 0) {
-      const { student, setTests, exams, server_addr, token, sendErrorMessage, ref_token_parsed } = useContext(Ctx)
+      const { setTests, server_addr, token, sendErrorMessage } = useContext(Ctx)
       const [valutazione, setValutazione] = useState(test.valutazione);
       const [tipologia, setTipologia] = useState(test.tipologia);
       const [stato, setStato] = useState(test.stato);
@@ -63,37 +62,26 @@ function Test(params) {
           <input type="checkbox" id="my-modal" className="modal-toggle" />
           <div className="modal">
             <div className="modal-box">
+              <form className="flex justify-center px-4 py-16 bg-base-100 card-body" style={{ gap: "10px" }}>
+                <input className="input input-bordered input-primary bg-base-100 w-full max-w-xs" type="number" placeholder="valutazione"
+                  value={valutazione} onChange={e => { setValutazione(e.target.value) }} ></input>
 
-              <form uk-grid="true">
-                <div className="uk-width-1-6">
-                  <input className="uk-input" type="number" placeholder="valutazione"
-                    value={valutazione} onChange={e => { setValutazione(e.target.value) }} ></input>
-                </div>
-                <div className="uk-width-1-6">
-                  <select className="uk-select" value={tipologia} onChange={e => { setTipologia(e.target.value) }} >
-                    <option>teoria</option>
-                    <option>programmazione</option>
-                    <option>orale</option>
-                  </select>
-                </div>
-                <div className="uk-width-1-6">
-                  <select className="uk-select" value={stato} onChange={e => { setStato(e.target.value) }} >
-                    <option>accettato</option>
-                    <option>ritirato</option>
-                    <option>rifiutato</option>
-                  </select>
-                </div>
-                <div className="uk-width-1-6">
-                  <input className="uk-input" type="text" placeholder="note"
-                    value={note} onChange={e => { setNote(e.target.value) }} ></input>
-                </div>
-                
+                <select className="select select-bordered select-secondary w-full max-w-xs" value={tipologia} onChange={e => { setTipologia(e.target.value) }} >
+                  <option>teoria</option>
+                  <option>programmazione</option>
+                  <option>orale</option>
+                </select>
+                <select className="select select-bordered select-secondary w-full max-w-xs" value={stato} onChange={e => { setStato(e.target.value) }} >
+                  <option>accettato</option>
+                  <option>ritirato</option>
+                  <option>rifiutato</option>
+                </select>
+                <input className="input input-bordered input-primary bg-base-100 w-full max-w-xs" type="text" placeholder="note"
+                  value={note} onChange={e => { setNote(e.target.value) }} ></input>
               </form>
-
-
               <div className="modal-action">
                 <label htmlFor="my-modal" className="btn" onClick={e => {
-                  e.preventDefault()
+                  //e.preventDefault()
                   if (!valutazione || !tipologia || !stato) {
                     sendErrorMessage("invalid fields")
                   } else {
@@ -121,7 +109,7 @@ function Test(params) {
             </div>
           </div>
 
-            <label htmlFor="my-modal" className="btn modal-button">open modal</label>
+          <label htmlFor="my-modal" className="btn modal-button">open modal</label>
         </>
       )
     } else return (<>-</>)

@@ -12,24 +12,17 @@ const TestForm = () => {
   useEffect(() => { if (exams && exams[0]) setEsame(exams[0].id) }, [exams])
   if (!exams || !student) return (<>nessuno studente corrisponde ai criteri di ricerca</>)
 
-  const [matricola, setMatricola] = useState("")
-  const [nome, setNome] = useState("")
-  const [cognome, setCognome] = useState("")
-  const [corso, setCorso] = useState("")
-  
-
-  return (
-    <>
-      <br></br>
-      <h3 className="uk-child-width-1-6@s" uk-grid="true">
-
-        <input type="checkbox" id="my-modal" class="modal-toggle" />
-        <div class="modal">
-          <div class="modal-box">
-
+  const ModificaStudente = () => {
+    const [nome, setNome] = useState(student.nome)
+    const [cognome, setCognome] = useState(student.cognome)
+    const [voto, setVoto] = useState(student.voto)
+    const [corso, setCorso] = useState(student.corso)
+    return (
+      <>
+        <input type="checkbox" id="my-modal2" className="modal-toggle" />
+        <div className="modal">
+          <div className="modal-box">
             <form className="flex justify-center px-4 py-16 bg-base-100 card-body" style={{ gap: "10px" }}>
-              <input type="text" placeholder="matricola" className="input input-bordered input-primary bg-base-100 w-full max-w-xs"
-                value={matricola} onChange={e => { setMatricola(e.target.value) }} />
               <input type="text" placeholder="cognome" className="input input-bordered input-secondary bg-base-100 w-full max-w-xs"
                 value={cognome} onChange={e => { setCognome(e.target.value) }} />
               <input type="text" placeholder="nome" className="input input-bordered input-primary w-full max-w-xs"
@@ -37,14 +30,13 @@ const TestForm = () => {
               <select className="select select-bordered select-secondary w-full max-w-xs" value={corso} onChange={e => { setCorso(e.target.value) }}>
                 {courses.map((course, pos) => <option key={pos}> {course.descrizione} </option>)}
               </select>
-              <div className="card-actions justify-end">
-
-              </div>
+              <input type="number" placeholder="voto" className="input input-bordered input-primary bg-base-100 w-full max-w-xs"
+                value={voto} onChange={e => { setVoto(e.target.value) }} />
             </form>
-            <div class="modal-action">
-              <label for="my-modal" class="btn" onClick={e => {
-                e.preventDefault()
-                if (!matricola || !nome || !cognome || !corso) {
+            <div className="modal-action">
+              <label htmlFor="my-modal2" className="btn" onClick={e => {
+                //e.preventDefault()
+                if (!voto || !nome || !cognome || !corso) {
                   sendErrorMessage("invalid fields")
                 } else {
                   fetch(`${server_addr}/students/${student.id}`, {
@@ -54,25 +46,36 @@ const TestForm = () => {
                       'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
-                      matricola: matricola,
                       nome: nome,
                       cognome: cognome,
-                      voto: null,
+                      voto: voto,
                       corso: corso
                     })
                   }).then((res) => {
                     if (res.ok) { return res.json(); }
                     else sendErrorMessage("conflict")
-                  }).then(() => {
-                    retrieveStudent()
-                  }).catch(error => console.log(error))
+                  }).then().catch(error => console.log(error))
                 }
               }}>Crea </label>
             </div>
           </div>
         </div>
 
-        <label for="my-modal" class="btn modal-button">open modal</label>
+        <label htmlFor="my-modal2" className="btn modal-button">modify</label>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <br></br>
+      <h3 className="uk-child-width-1-6@s" uk-grid="true">
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.matricola}</div>
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.cognome}</div>
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.nome}</div>
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{student.corso}</div>
+        <div className="uk-panel uk-text-break uk-text-center uk-text-uppercase">{voto_studente}</div>
+        <ModificaStudente />
       </h3>
       <form uk-grid="true">
         <div className="uk-width-1-6">
