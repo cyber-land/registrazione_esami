@@ -26,7 +26,7 @@ $pdo = new PDO(
 
 //TODO: definire gli status-code di ritorno lato server poi gestirli lato client
 //TODO: impostare i limiti degli output affinché la loro dimensione sia moderata
-//TODO: ritornare l'id (comando per ultimo inserimento della sessione anche in altre zone)
+//TODO: ritornare l'id nelle POST
 
 define('JWT_SECRET', (string)$obj['JWT_SECRET']);
 
@@ -49,7 +49,7 @@ $app->add(
 	new JwtAuthentication([
 		"path" => BASE_PATH,
 		"ignore" => [BASE_PATH . "/auth", BASE_PATH . "/status"],
-		"secure" => false,
+		"secure" => false, //allow HTTP (unencrypted) requests from remote devices
 		"secret" => JWT_SECRET
 	])
 );
@@ -295,27 +295,26 @@ $app->post('/auth', function (Request $request, Response $response, array $args)
 });
 
 $app->put('/students/{id}', function (Request $request, Response $response, array $args) use ($pdo) {
-	// {"matricola": "123", "nome": "luca", "cognome": "mandolini", "voto": null, "id_corso": "1"}
+	// {"nome": "luca", "cognome": "mandolini", "voto": "15", "corso": "informatica"}
 	$body = $request->getBody();
 	$value = json_decode($body);
 	// controllare se uno studente con la stessa matricola esiste già
-	$sql = 'SELECT * FROM studente WHERE matricola = :matricola AND id = :id';
+	$sql = 'SELECT * FROM studente WHERE id = :id';
 	$stmt = $pdo->prepare($sql);
-	$stmt->execute([
-		'id' => $args['id'],
-		'matricola' => $value->{'matricola'}
-	]);
+	$stmt->execute(['id' => $args['id']]);
 	if ($stmt->fetchAll()) { // se esiste uno studente con lo stesso id e la stessa matricola
-		$sql = 'UPDATE studente SET nome = :nome, cognome = :cognome, voto = :voto, 
-            matricola = :matricola, id_corso = :id_corso WHERE id = :id';
+		$sql = 'SELECT id FROM corso WHERE descrizione = :descrizione';
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute(['descrizione' => $value->{'corso'}]);
+		$id_corso = $stmt->fetchAll();
+		$sql = 'UPDATE studente SET nome = :nome, cognome = :cognome, voto = :voto, id_corso = :id_corso WHERE id = :id';
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute([
 			'id' => $args['id'],
-			'matricola' => $value->{'matricola'},
 			'nome' => $value->{'nome'},
 			'cognome' => $value->{'cognome'},
 			'voto' => $value->{'voto'},
-			'id_corso' => $value->{'id_corso'}
+			'id_corso' => $id_corso[0]['id']
 		]);
 		$stmt->fetchAll();
 		$response->getBody()->write(json_encode(array('id' => $args['id'])));
@@ -340,27 +339,23 @@ order by id desc limit 1';
 	$stmt->execute(['id' => $args['id']]);
 	$result = $stmt->fetchAll();
 	if ($result[0]['result'] == true) { //è l'ultima prova effettuata dallo studente
-		echo "true";
-	}
-	var_dump($result[0]['result']);
-
-	//if (is_correct($body)) {
-	$sql = 'UPDATE prova SET valutazione = :valutazione, tipologia = :tipologia, 
+		//if (is_correct($body)) {}
+		$sql = 'UPDATE prova SET valutazione = :valutazione, tipologia = :tipologia, 
 		          stato = :stato, note = :note WHERE id = :id';
-	$stmt = $pdo->prepare($sql);
-	$stmt->execute([
-		'id' => $args['id'],
-		'valutazione' => $value->{'valutazione'},
-		'tipologia' => $value->{'tipologia'},
-		'stato' => $value->{'stato'},
-		'note' => $value->{'note'},
-	]);
-	$result = $stmt->fetchAll();
-	$response->getBody()->write(json_encode($result));
-	$response->withHeader('Content-Type', 'application/json');
-	//} else {
-	//$response = $response->withStatus(428); //precondition required
-	//}
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute([
+			'id' => $args['id'],
+			'valutazione' => $value->{'valutazione'},
+			'tipologia' => $value->{'tipologia'},
+			'stato' => $value->{'stato'},
+			'note' => $value->{'note'},
+		]);
+		$result = $stmt->fetchAll();
+		$response->getBody()->write(json_encode($result));
+		$response->withHeader('Content-Type', 'application/json');
+	} else {
+		$response = $response->withStatus(428); //precondition required
+	}
 	return $response;
 });
 
