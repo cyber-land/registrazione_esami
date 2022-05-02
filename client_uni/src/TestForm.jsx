@@ -79,7 +79,7 @@ const TestForm = () => {
   return (
     <>
       <br></br>
-      <div className="overlow-x-auto">
+      <div className="overlow-x-auto" style={{overflowX: "auto"}}>
         <table className="table w-full">
           <thead>
             <tr>

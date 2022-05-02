@@ -16,7 +16,7 @@ const TestsTable = () => {
   if (!orale_valido) orale_valido = { id_prova: null }
 
   return (
-    <div className="overlow-x-auto">
+    <div className="overlow-x-auto" style={{overflowX: "auto"}}>
       <table className="table w-full">
         <thead>
           <tr>
